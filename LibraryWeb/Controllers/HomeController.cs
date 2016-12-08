@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using LibraryWeb.Models.Books;
+using LibraryWeb.Models.Authors;
+using LibraryWeb.Repository;
 
 namespace LibraryWeb.Controllers
 {
@@ -10,7 +13,9 @@ namespace LibraryWeb.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            var bookRepo = new BookEntity();
+            var books = bookRepo.GetAll();
+            return View("~/Views/Books/Index.cshtml", books);
         }
 
         public ActionResult About()
