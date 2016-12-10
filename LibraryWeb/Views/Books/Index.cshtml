@@ -8,17 +8,20 @@
 
 <p>
     @Html.ActionLink("Create New", "Create")
+    @using (Html.BeginForm())
+    {
+    }
 </p>
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Title)
+            @Html.ActionLink("Title", "Index", new { orderColumn = ViewBag.TitleSortParm })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.TotalQuantity)
+            @Html.ActionLink("Total", "Index", new { orderColumn = ViewBag.TotalSortParm })                                                                                       
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.AvailableQuantity)
+            @Html.ActionLink("Available", "Index", new { orderColumn = ViewBag.AvailableSortParm })
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Authors)

@@ -4,13 +4,13 @@ using System.Linq;
 using System.Web;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using LibraryWeb.Models.Books;
+using LibraryWeb.Models.History;
 
 namespace LibraryWeb.Models.Readers
 {
     public class ReaderModel
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         [DisplayName("Full Name")]
         [Required(ErrorMessage = "Reader name is required.")]
@@ -19,13 +19,11 @@ namespace LibraryWeb.Models.Readers
 
         [DisplayName("Email")]
         [Required(ErrorMessage = "Reader email is required.")]
-        [StringLength(100)]
+        [StringLength(100), MinLength(3)]
         public string Email { get; set; }
      
         [DisplayName("Password")]
         [StringLength(30)]
         public string Password { get; set; }
-
-        public List<ReaderBooksViewModel> CurrentlyTakenBooks { get; set; }
     }
 }

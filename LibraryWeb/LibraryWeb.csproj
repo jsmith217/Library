@@ -199,10 +199,16 @@
     <Compile Include="Controllers\BooksController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
-    <Compile Include="Repository\ICommonQuery.cs" />
-    <Compile Include="Repository\Tables\BookEntity.cs" />
-    <Compile Include="Repository\IRepository.cs" />
-    <Compile Include="Repository\Tables\ConnectionEstablisher.cs" />
+    <Compile Include="DAL\Repository\Tables\AuthorsRepository.cs" />
+    <Compile Include="DAL\Repository\Tables\BooksAuthorsRelationTable.cs" />
+    <Compile Include="DAL\Repository\Tables\BooksAuthorsRepository.cs" />
+    <Compile Include="DAL\Repository\Tables\BooksRepository.cs" />
+    <Compile Include="DAL\Repository\AbstractRepository.cs" />
+    <Compile Include="DAL\Repository\ConnectionEstablisher.cs" />
+    <Compile Include="DAL\Repository\Tables\HistoryRelationTable.cs" />
+    <Compile Include="DAL\Repository\Tables\HistoryRepository.cs" />
+    <Compile Include="DAL\Repository\Tables\ReadersRepository.cs" />
+    <Compile Include="DAL\Service\BookService.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -211,10 +217,12 @@
     <Compile Include="Models\Books\BookModel.cs" />
     <Compile Include="Models\Books\BookStatus.cs" />
     <Compile Include="Models\Books\BookValidator.cs" />
+    <Compile Include="Models\History\HistoryValidation.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
-    <Compile Include="Models\Readers\ReaderBooksViewModel.cs" />
+    <Compile Include="Models\History\HistoryModel.cs" />
     <Compile Include="Models\Readers\ReaderModel.cs" />
+    <Compile Include="Models\Readers\ReaderValidation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>

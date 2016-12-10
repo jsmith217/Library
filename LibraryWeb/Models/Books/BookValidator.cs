@@ -9,9 +9,9 @@ namespace LibraryWeb.Models.Books
     {
         public static void Validate(BookModel book)
         {
-            if (book.TotalQuantity <= 0)
+            if (book.TotalQuantity < 0)
             {
-                throw new ArgumentException("Total quantity of the certain books can't be negative or 0.");
+                throw new ArgumentException("Total quantity of the certain books can't be negative.");
             }
             else if (book.AvailableQuantity < 0)
             {

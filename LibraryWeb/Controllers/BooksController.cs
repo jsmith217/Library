@@ -4,17 +4,21 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using LibraryWeb.Repository;
+using LibraryWeb.Service;
 
 namespace LibraryWeb.Controllers
 {
     public class BooksController : Controller
     {
         // GET: Book
-        public ActionResult Index()
+        public ActionResult Index(string orderColumn)
         {
-            var bookRepo = new BookEntity();
-            var books = bookRepo.GetAll();
-            return View("Index", books);
+            ViewBag.TitleSortParm = String.IsNullOrEmpty(orderColumn) ? "Title desc" : "Title";
+            ViewBag.TotalSortParm = orderColumn == "Total" ? "Total desc" : "Total";
+            ViewBag.AvailableSortParm = orderColumn == "Available" ? "Available desc" : "Available";
+
+            BookService bookService = new BookService();
+            return View("Index", bookService.GetAllBooks(orderColumn));
         }
 
         [Authorize]

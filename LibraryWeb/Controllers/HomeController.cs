@@ -13,9 +13,7 @@ namespace LibraryWeb.Controllers
     {
         public ActionResult Index()
         {
-            var bookRepo = new BookEntity();
-            var books = bookRepo.GetAll();
-            return View("~/Views/Books/Index.cshtml", books);
+            return RedirectToAction("Index", "Books");
         }
 
         public ActionResult About()
