@@ -37,7 +37,8 @@
                 <tr>
                     <td>@Html.ActionLink(item.Book.Title, "Details", "Books", new { id = item.Book.Id }, null)</td>
                     <td>@item.DateTaken</td>
-                    <td>@item.DateReturned</td>
+                    @{ var date = item.DateReturned.HasValue ? item.DateReturned.ToString() : "-";}
+                    <td>@date</td>
                 </tr>
             }
         </table>

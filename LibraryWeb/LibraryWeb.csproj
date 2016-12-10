@@ -208,16 +208,19 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\Domain\ReadersController.cs" />
+    <Compile Include="DAL\Repository\Mappers\BookMapper.cs" />
+    <Compile Include="DAL\Repository\Mappers\HistoryMapper.cs" />
+    <Compile Include="DAL\Repository\Mappers\IMapper.cs" />
+    <Compile Include="DAL\Repository\Mappers\ReaderMapper.cs" />
     <Compile Include="DAL\Repository\Tables\AuthorsRepository.cs" />
-    <Compile Include="DAL\Repository\Tables\BooksAuthorsRelationTable.cs" />
     <Compile Include="DAL\Repository\Tables\BooksAuthorsRepository.cs" />
     <Compile Include="DAL\Repository\Tables\BooksRepository.cs" />
     <Compile Include="DAL\Repository\AbstractRepository.cs" />
     <Compile Include="DAL\Repository\ConnectionEstablisher.cs" />
-    <Compile Include="DAL\Repository\Tables\HistoryRelationTable.cs" />
     <Compile Include="DAL\Repository\Tables\HistoryRepository.cs" />
     <Compile Include="DAL\Repository\Tables\ReadersRepository.cs" />
     <Compile Include="DAL\Service\BookService.cs" />
+    <Compile Include="DAL\Service\HistoryService.cs" />
     <Compile Include="DAL\Service\ICommonQueries.cs" />
     <Compile Include="DAL\Service\ReaderService.cs" />
     <Compile Include="Global.asax.cs">
@@ -301,6 +304,7 @@
     <Content Include="Views\Books\_Books.cshtml" />
     <Content Include="Views\Readers\Details.cshtml" />
     <Content Include="Views\Books\Details.cshtml" />
+    <Content Include="Views\Books\History.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

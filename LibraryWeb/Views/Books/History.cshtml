@@ -1,0 +1,59 @@
+﻿@model LibraryWeb.Models.Books.BookModel
+
+@{
+    ViewBag.Title = "History";
+}
+
+<h2>Book's history</h2>
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TotalQuantity)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TotalQuantity)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.AvailableQuantity)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.AvailableQuantity)
+        </dd>
+
+    </dl>
+</div>
+
+<div>
+    <h4>Book has been taken by following readers</h4>
+    <table class="table">
+        <tr>
+            <th>Reader</th>
+            <th>Taken at</th>
+            <th>Returned at</th>
+        </tr>
+        @foreach (var item in Model.History)
+        {
+            <tr>
+                <td>@Html.ActionLink(item.Reader.FullName, "Details", "Readers", new { id = item.Reader.Id }, null)</td>
+                <td>@item.DateTaken</td>
+                @{ var date = item.DateReturned.HasValue ? item.DateReturned.ToString() : "-"; }
+                <td>@date</td>
+            </tr>
+        }
+    </table>
+</div>
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>

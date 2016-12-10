@@ -9,7 +9,8 @@ namespace LibraryWeb.Models.History
     {
         public static void Validate(HistoryModel history)
         {
-            if (history.DateReturned.CompareTo(history.DateTaken) < 0)
+            if (history.DateReturned.HasValue 
+                && history.DateReturned.Value.CompareTo(history.DateTaken) < 0)
             {
                 throw new ArgumentException("reader can't return book before taking one.");
             }

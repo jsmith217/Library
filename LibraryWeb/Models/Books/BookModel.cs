@@ -5,6 +5,7 @@ using System.Web;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using LibraryWeb.Models.Authors;
+using LibraryWeb.Models.History;
 
 namespace LibraryWeb.Models.Books
 {
@@ -32,13 +33,15 @@ namespace LibraryWeb.Models.Books
             {
                 if (this.AvailableQuantity != 0)
                 {
-                    return BookStatus.AVAILABLE;
+                    return BookStatus.YES;
                 }
 
-                return BookStatus.ALL_TAKEN;
+                return BookStatus.NO;
             }
         }
 
         public List<AuthorModel> Authors { get; set; }
+
+        public List<HistoryModel> History { get; set; }
     }
 }

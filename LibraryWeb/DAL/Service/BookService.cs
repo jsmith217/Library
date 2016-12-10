@@ -31,10 +31,7 @@ namespace LibraryWeb.Service
                     // add book to books table.
                     this._booksRepo.Insert(book, connection);
                     // add book to author relation
-                    this._booksAuthorsRepo.Insert(
-                        book.Authors.Select(
-                            a => new BooksAuthorsRelationTable { BookId = book.Id, AuthorId = a.Id }).ToList(),
-                        connection);
+                    this._booksAuthorsRepo.Insert(book, connection);
                 }
                 catch (SqlException ex)
                 {
@@ -89,10 +86,7 @@ namespace LibraryWeb.Service
                 {
                     connection.Open();
                     this._booksRepo.Update(book, connection);
-                    book.Authors.ForEach(
-                        a => this._booksAuthorsRepo.Update(
-                            new BooksAuthorsRelationTable { BookId = book.Id, AuthorId=a.Id },
-                            connection));
+                    this._booksAuthorsRepo.Update(book, connection);
                 }
                 catch (SqlException ex)
                 {

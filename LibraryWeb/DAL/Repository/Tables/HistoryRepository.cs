@@ -6,11 +6,31 @@ using System.Text;
 using System.Data.SqlClient;
 using LibraryWeb.Models.History;
 using LibraryWeb.Models.Readers;
+using LibraryWeb.Models.Books;
+using LibraryWeb.Repository.Mappers;
 
 namespace LibraryWeb.Repository
 {
     public class HistoryRepository : AbstractRepository<HistoryModel>
     {
+        private string _selectionString;
+
+        private ReaderMapper _readerMapper;
+        private HistoryMapper _historyMapper;
+
+        public HistoryRepository()
+        {
+            this._readerMapper = new ReaderMapper();
+            this._historyMapper = new HistoryMapper();
+            this._selectionString = @"
+SELECT r.Id as ReaderId,r.FullName,r.Email,r.Password,
+b.Id as BookId,b.Title,b.Available,b.Total,
+h.Id as HistoryId,h.DateTaken,h.DateReturned
+FROM Readers r 
+LEFT JOIN History h ON r.Id=h.ReaderId
+LEFT JOIN Books b ON b.id = h.BookId{0};";
+        }
+
         // Deprecate deletion.
         public override void Delete(HistoryModel entity, SqlConnection connection)
         {
@@ -59,7 +79,7 @@ namespace LibraryWeb.Repository
             using (SqlCommand command = new SqlCommand(commandText, connection))
             {
                 command.Parameters.AddWithValue("@bookId", history.Book.Id);
-                command.Parameters.AddWithValue("@readerId", history.ReaderId);
+                command.Parameters.AddWithValue("@readerId", history.Reader.Id);
                 command.Parameters.AddWithValue("@dateTaken", history.DateTaken);
                 command.Parameters.AddWithValue("@dateReturned", history.DateReturned);
                 command.Parameters.AddWithValue("@id", history.Id);
@@ -74,17 +94,37 @@ namespace LibraryWeb.Repository
             }
         }
 
-        /*protected override HistoryRelationTable GetEntity(SqlDataReader reader, SqlConnection connection)
+        public List<HistoryModel> Select(List<string> conditions)
         {
-            return new HistoryRelationTable
+            var histories = new List<HistoryModel>();
+            using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
-                Id = Int32.Parse(reader["Id"].ToString()),
-                BookId = Int32.Parse(reader["BookId"].ToString()),
-                ReaderId = Int32.Parse(reader["ReaderId"].ToString()),
-                DateReturned = DateTime.Parse(reader["DateReturned"].ToString()),
-                DateTaken = DateTime.Parse(reader["DateTaken"].ToString()),
-                Quantity = Int16.Parse(reader["Quantity"].ToString())
-            };
-        }*/
+                string conditionsText = conditions == null || conditions.Count == 0
+                    ? "" : " WHERE " + String.Join(" AND ", conditions);
+                string commandText = String.Format(this._selectionString, conditionsText);
+                using (SqlCommand command = new SqlCommand(commandText, connection))
+                {
+                    try
+                    {
+                        connection.Open();
+                        var dataReader = command.ExecuteReader();
+                        while (dataReader.Read())
+                        {
+                            histories.Add(this._historyMapper.Map(dataReader));
+                        }
+                        dataReader.Close();
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new ArgumentException($"Wrong selection readers query: {ex.Message}");
+                    }
+                    finally
+                    {
+                        connection.Close();
+                    }
+                }
+            }
+            return histories;
+        }
     }
 }

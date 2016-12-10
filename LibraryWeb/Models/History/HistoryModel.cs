@@ -11,12 +11,12 @@ namespace LibraryWeb.Models.History
     {
         public int Id { get; set; }
 
-        public int ReaderId { get; set; }
+        public ReaderModel Reader { get; set; }
 
         public BookModel Book { get; set; }
 
         public DateTime DateTaken { get; set; }
 
-        public DateTime DateReturned { get; set; }
+        public DateTime? DateReturned { get; set; }
     }
 }

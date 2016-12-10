@@ -12,30 +12,26 @@ namespace LibraryWeb.Repository
     /// <summary>
     /// Responsible for books to authors relationship.
     /// </summary>
-    public class BooksAuthorsRepository : AbstractRepository<BooksAuthorsRelationTable>
+    public class BooksAuthorsRepository : AbstractRepository<BookModel>
     {
         #region Write
-        public override void Delete(BooksAuthorsRelationTable entity, SqlConnection connection)
+        public override void Delete(BookModel entity, SqlConnection connection)
         {
             throw new NotImplementedException();
         }
         
-        public override void Insert(BooksAuthorsRelationTable entities, SqlConnection connection)
-        {
-            throw new NotImplementedException();
-        }
 
-        public void Insert(List<BooksAuthorsRelationTable> entities, SqlConnection connection)
+        public override void Insert(BookModel entities, SqlConnection connection)
         {
             var commandText = new StringBuilder("INSERT INTO BooksAuthors (BookId, AuthorId) VALUES ");
-            commandText.Append(String.Join(",", entities.Select((a, index) => $"(@bookId, @authorId{index})")));
+            commandText.Append(String.Join(",", entities.Authors.Select((a, index) => $"(@bookId, @authorId{index})")));
             commandText.Append(";");
             using (SqlCommand command = new SqlCommand(commandText.ToString(), connection))
             {
-                for (int i = 0; i < entities.Count; i++)
+                for (int i = 0; i < entities.Authors.Count; i++)
                 {
-                    command.Parameters.AddWithValue("@bookId", entities[i].BookId);
-                    command.Parameters.AddWithValue($"@authorId{i}", entities[i].AuthorId);
+                    command.Parameters.AddWithValue("@bookId", entities.Id);
+                    command.Parameters.AddWithValue($"@authorId{i}", entities.Authors[i].Id);
                 }
                 try
                 {
@@ -48,13 +44,18 @@ namespace LibraryWeb.Repository
             }
         }
 
-        public override void Update(BooksAuthorsRelationTable entity, SqlConnection connection)
+        public override void Update(BookModel entity, SqlConnection connection)
+        {
+            entity.Authors.ForEach(a => this.Update(new Tuple<int, int>(entity.Id, a.Id), connection));
+        }
+
+        private void Update(Tuple<int, int> entity, SqlConnection connection)
         {
             string commandText = "UPDATE BooksAuthors SET AuthorId=@authorId WHERE BookId=@bookId;";
             using (SqlCommand command = new SqlCommand(commandText, connection))
             {
-                command.Parameters.AddWithValue("@authorId", entity.AuthorId);
-                command.Parameters.AddWithValue("@bookId", entity.Id);
+                command.Parameters.AddWithValue("@authorId", entity.Item1);
+                command.Parameters.AddWithValue("@bookId", entity.Item2);
                 try
                 {
                     command.ExecuteNonQuery();

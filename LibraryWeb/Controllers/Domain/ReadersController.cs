@@ -11,10 +11,12 @@ namespace LibraryWeb.Controllers
     public class ReadersController : Controller
     {
         private ReaderService _readerService;
+        private HistoryService _historyService;
 
         public ReadersController()
         {
             this._readerService = new ReaderService();
+            this._historyService = new HistoryService();
         }
 
         // GET: Readers
@@ -26,7 +28,7 @@ namespace LibraryWeb.Controllers
         // GET: Readers/Details/5
         public ActionResult Details(int id)
         {
-            return View(this._readerService.GetById(id));
+            return View(this._historyService.GetReaderHistory(id));
         }
 
         // GET: Readers/Create

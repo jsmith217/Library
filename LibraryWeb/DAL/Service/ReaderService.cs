@@ -18,12 +18,12 @@ namespace LibraryWeb.Service
 
         public List<ReaderModel> GetAllReaders()
         {
-            return this._readersRepo.LightWeightSelect();
+            return this._readersRepo.LightWeightSelect(null);
         }
 
         public ReaderModel GetById(int id)
         {
-            return this._readersRepo.Select(new List<string> { $"r.Id={id}" }).First();
+            return this._readersRepo.LightWeightSelect(new List<string> { $"Id={id}" }).First();
         }
     }
 }

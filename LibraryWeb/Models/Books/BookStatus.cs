@@ -7,7 +7,7 @@ namespace LibraryWeb.Models.Books
 {
     public enum BookStatus
     {
-        AVAILABLE,
-        ALL_TAKEN
+        YES,
+        NO
     }
 }

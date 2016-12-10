@@ -13,10 +13,12 @@ namespace LibraryWeb.Controllers
     public class BooksController : Controller
     {
         private BookService _bookService;
+        private HistoryService _historyService;
 
         public BooksController()
         {
             this._bookService = new BookService();
+            this._historyService = new HistoryService();
         }
 
         // GET: Book
@@ -52,7 +54,13 @@ namespace LibraryWeb.Controllers
         // GET: Book/Details/5
         public ActionResult Details(int id)
         {
-            return View(this._bookService.GetById(id));
+            return RedirectToAction("History", this._historyService.GetBookHistory(id));
+        }
+        
+        // GET: Book/History/5
+        public ActionResult History(int id)
+        {
+            return View(this._historyService.GetBookHistory(id));
         }
 
         // GET: Book/Create
