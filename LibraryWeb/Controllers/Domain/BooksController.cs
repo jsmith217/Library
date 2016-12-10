@@ -38,7 +38,7 @@ namespace LibraryWeb.Controllers
                 books = this._bookService.GetAllBooks(orderColumn);
             }
 
-            int pageSize = 3;
+            int pageSize = 5;
             return View("Index", books.ToPagedList(page ?? 1, pageSize));
         }
 
@@ -52,7 +52,7 @@ namespace LibraryWeb.Controllers
         // GET: Book/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            return View(this._bookService.GetById(id));
         }
 
         // GET: Book/Create

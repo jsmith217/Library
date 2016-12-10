@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Net.Mail;
 
 namespace LibraryWeb.Models.Readers
 {
@@ -9,9 +10,13 @@ namespace LibraryWeb.Models.Readers
     {
         public static void Validate(ReaderModel reader)
         {
-            if (String.IsNullOrEmpty(reader.Email) || reader.Email.Length < 3)
+            try
             {
-                throw new ArgumentException("Reader's email is not stated or invalid.");
+                var address = new MailAddress(reader.Email);
+            }
+            catch
+            {
+                throw new ArgumentException("Specified email is invalid.");
             }
         }
     }

@@ -1,0 +1,49 @@
+﻿@model LibraryWeb.Models.Readers.ReaderModel
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.FullName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FullName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+    </dl>
+    <div>
+        <h4>Reader's history</h4>
+        <table class="table">
+            <tr>
+                <th>Book</th>
+                <th>Taken at</th>
+                <th>Returned at</th>
+            </tr>
+            @foreach (var item in Model.History)
+            {
+                <tr>
+                    <td>@Html.ActionLink(item.Book.Title, "Details", "Books", new { id = item.Book.Id }, null)</td>
+                    <td>@item.DateTaken</td>
+                    <td>@item.DateReturned</td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

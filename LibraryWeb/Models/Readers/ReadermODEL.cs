@@ -25,5 +25,7 @@ namespace LibraryWeb.Models.Readers
         [DisplayName("Password")]
         [StringLength(30)]
         public string Password { get; set; }
+
+        public List<HistoryModel> History { get; set; }
     }
 }

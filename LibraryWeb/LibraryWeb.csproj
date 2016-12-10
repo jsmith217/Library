@@ -204,9 +204,10 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\BooksController.cs" />
+    <Compile Include="Controllers\Domain\BooksController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\Domain\ReadersController.cs" />
     <Compile Include="DAL\Repository\Tables\AuthorsRepository.cs" />
     <Compile Include="DAL\Repository\Tables\BooksAuthorsRelationTable.cs" />
     <Compile Include="DAL\Repository\Tables\BooksAuthorsRepository.cs" />
@@ -217,6 +218,8 @@
     <Compile Include="DAL\Repository\Tables\HistoryRepository.cs" />
     <Compile Include="DAL\Repository\Tables\ReadersRepository.cs" />
     <Compile Include="DAL\Service\BookService.cs" />
+    <Compile Include="DAL\Service\ICommonQueries.cs" />
+    <Compile Include="DAL\Service\ReaderService.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -294,6 +297,10 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Books\Index.cshtml" />
     <Content Include="Views\Books\Create.cshtml" />
+    <Content Include="Views\Readers\Index.cshtml" />
+    <Content Include="Views\Books\_Books.cshtml" />
+    <Content Include="Views\Readers\Details.cshtml" />
+    <Content Include="Views\Books\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

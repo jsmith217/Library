@@ -13,10 +13,6 @@ namespace LibraryWeb.Models.History
             {
                 throw new ArgumentException("reader can't return book before taking one.");
             }
-            if (history.Quantity < 0)
-            {
-                throw new ArgumentException("Reader can't take negative number of books from library.");
-            }
         }
     }
 }

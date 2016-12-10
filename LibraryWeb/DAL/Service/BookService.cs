@@ -9,7 +9,7 @@ using LibraryWeb.Models.Authors;
 
 namespace LibraryWeb.Service
 {
-    public class BookService
+    public class BookService : ICommonQueries<BookModel>
     {
         private BooskRepository _booksRepo;
 
@@ -113,6 +113,11 @@ namespace LibraryWeb.Service
         public List<BookModel> GetAllAvailableBooks()
         {
             return this._booksRepo.GetAllBooks(null, new List<string> { "Available > 0" });
+        }
+
+        public BookModel GetById(int id)
+        {
+            return this._booksRepo.GetAllBooks(null, new List<string> { $"b.Id={id}" }).First();
         }
     }
 }

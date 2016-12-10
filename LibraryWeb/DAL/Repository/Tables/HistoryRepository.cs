@@ -5,40 +5,40 @@ using System.Web;
 using System.Text;
 using System.Data.SqlClient;
 using LibraryWeb.Models.History;
+using LibraryWeb.Models.Readers;
 
 namespace LibraryWeb.Repository
 {
-    public class HistoryRepository : AbstractRepository<HistoryRelationTable>
+    public class HistoryRepository : AbstractRepository<HistoryModel>
     {
         // Deprecate deletion.
-        public override void Delete(HistoryRelationTable entity, SqlConnection connection)
+        public override void Delete(HistoryModel entity, SqlConnection connection)
         {
             throw new NotImplementedException();
         }
 
-        public override void Insert(HistoryRelationTable entity, SqlConnection connection)
+        public override void Insert(HistoryModel entity, SqlConnection connection)
         {
             throw new NotImplementedException();
         }
 
-        public void Insert(List<HistoryRelationTable> entity, SqlConnection connection)
+        public void Insert(ReaderModel entity, SqlConnection connection)
         {
-            //entity.ForEach(e => HistoryValidation.Validate(e));
+            entity.History.ForEach(e => HistoryValidation.Validate(e));
             // Insert all history entries in one connection opening.
-            var commandText = new StringBuilder("INSERT INTO History (BookId, ReaderId, DateTaken, Quantity, DateReturned) VALUES ");
-            var values = entity.Select((e, index)
-                => String.Format("(@bookId{0}, @readerId{0}, @dateTaken{0}, @quantity{0}, @dateReturned{0})", index));
+            var commandText = new StringBuilder("INSERT INTO History (BookId, ReaderId, DateTaken, DateReturned) VALUES ");
+            var values = entity.History.Select((e, index)
+                => String.Format("(@bookId{0},@readerId{0},@dateTaken{0},@dateReturned{0})", index));
             commandText.Append(String.Join(",", values));
             commandText.Append(";");
             using (SqlCommand command = new SqlCommand(commandText.ToString(), connection))
             {
-                for (int i = 0; i < entity.Count; i++)
+                for (int i = 0; i < entity.History.Count; i++)
                 {
-                    command.Parameters.AddWithValue($"@bookId{i}", entity[i].BookId);
-                    command.Parameters.AddWithValue($"@readerId{i}", entity[i].ReaderId);
-                    command.Parameters.AddWithValue($"@dateTaken{i}", entity[i].DateTaken);
-                    command.Parameters.AddWithValue($"@quantity{i}", entity[i].Quantity);
-                    command.Parameters.AddWithValue($"@dateReturned{i}", entity[i].DateReturned);
+                    command.Parameters.AddWithValue($"@bookId{i}", entity.History[i].Book.Id);
+                    command.Parameters.AddWithValue($"@readerId{i}", entity.Id);
+                    command.Parameters.AddWithValue($"@dateTaken{i}", entity.History[i].DateTaken);
+                    command.Parameters.AddWithValue($"@dateReturned{i}", entity.History[i].DateReturned);
                 }
 
                 try
@@ -52,16 +52,15 @@ namespace LibraryWeb.Repository
             }
         }
         
-        public override void Update(HistoryRelationTable history, SqlConnection connection)
+        public override void Update(HistoryModel history, SqlConnection connection)
         {
             //HistoryValidation.Validate(history);
-            string commandText = "UPDATE History SET BookId=@bookId, ReaderId=@readerId, DateTaken=@dateTaken, Quantity=@quantity, DateReturned=@dateReturned WHERE id=@id";
+            string commandText = @"UPDATE History SET BookId=@bookId,ReaderId=@readerId,DateTaken=@dateTaken,DateReturned=@dateReturned WHERE id=@id";
             using (SqlCommand command = new SqlCommand(commandText, connection))
             {
-                command.Parameters.AddWithValue("@bookId", history.BookId);
+                command.Parameters.AddWithValue("@bookId", history.Book.Id);
                 command.Parameters.AddWithValue("@readerId", history.ReaderId);
                 command.Parameters.AddWithValue("@dateTaken", history.DateTaken);
-                command.Parameters.AddWithValue("@quantity", history.Quantity);
                 command.Parameters.AddWithValue("@dateReturned", history.DateReturned);
                 command.Parameters.AddWithValue("@id", history.Id);
                 try

@@ -3,7 +3,7 @@
 <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Books";
 }
 
 <h2>Index</h2>
@@ -33,50 +33,9 @@
       })
   </div>
 </p>
-<div id="bookList">
-    <table class="table">
-        <tr>
-            <th>
-                @Html.ActionLink("Title", "Index", new { orderColumn = ViewBag.TitleSortParm })
-            </th>
-            <th>
-                @Html.ActionLink("Total", "Index", new { orderColumn = ViewBag.TotalSortParm })
-            </th>
-            <th>
-                @Html.ActionLink("Available", "Index", new { orderColumn = ViewBag.AvailableSortParm })
-            </th>
-            <th>
-                @Html.DisplayName("Authors")
-            </th>
-            <th></th>
-        </tr>
 
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TotalQuantity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AvailableQuantity)
-                </td>
-                <td>
-                    @{ string authorNames = item.Authors == null ? "-" : String.Join(", ", item.Authors.Select(a => a.FullName).ToArray());}
-                    @Html.DisplayFor(modelItem => authorNames)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id }) |
-                    @Html.ActionLink("Take", "Take", new { id = item.Id }) |
-                </td>
-            </tr>
-        }
-       
-    </table>
-    Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, orderColumn = ViewBag.CurrentSort }))
-</div>
+@Html.Partial("_Books", Model)
+
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page, orderColumn = ViewBag.CurrentSort }))
+

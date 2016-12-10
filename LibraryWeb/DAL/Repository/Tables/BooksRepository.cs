@@ -13,15 +13,13 @@ namespace LibraryWeb.Repository
     /// </summary>
     public class BooskRepository : AbstractRepository<BookModel>
     {
-        private AuthorsRepository _authorRepo;
-        private BooksAuthorsRepository _booksAuthorRepo;
-
-        private string _selectionString = "SELECT b.*, a.* FROM Books B LEFT JOIN BooksAuthors ba ON ba.BookId=b.Id LEFT JOIN Authors a ON a.Id=ba.AuthorId WHERE b.Total > 0 {1} {0};";
+        private readonly string _selectionString;
 
         public BooskRepository()
         {
-            this._authorRepo = new AuthorsRepository();
-            this._booksAuthorRepo = new BooksAuthorsRepository();
+            _selectionString = @"SELECT b.*, a.Id as AuthorId, a.FullName FROM Books b 
+LEFT JOIN BooksAuthors ba ON ba.BookId=b.Id 
+LEFT JOIN Authors a ON a.Id=ba.AuthorId WHERE b.Total > 0 {1} {0};";
         }
 
         #region Write
@@ -110,29 +108,20 @@ namespace LibraryWeb.Repository
                             BookModel currentBook = null;
                             if ((currentBook = books.FirstOrDefault(b => b.Id == bookId)) == null)
                             {
-                                books.Add(new BookModel
-                                {
-                                    Id = Int32.Parse(reader["Id"].ToString()),
+                                books.Add(new BookModel {
+                                    Id = bookId,
                                     Title = reader["Title"].ToString(),
                                     TotalQuantity = Int32.Parse(reader["Total"].ToString()),
                                     AvailableQuantity = Int32.Parse(reader["Available"].ToString()),
                                     Authors = new List<AuthorModel>()
                                     {
-                                        new AuthorModel
-                                        {
-                                            Id = Int32.Parse(reader["Id"].ToString()),
-                                            FullName = reader["FullName"].ToString()
-                                        }
+                                        this.MapAuthor(reader)
                                     }
                                 });
                             }
                             else
                             {
-                                currentBook.Authors.Add(new AuthorModel
-                                {
-                                    Id = Int32.Parse(reader["Id"].ToString()),
-                                    FullName = reader["FullName"].ToString()
-                                });
+                                currentBook.Authors.Add(this.MapAuthor(reader));
                             }
                         }
                         reader.Close();
@@ -150,21 +139,13 @@ namespace LibraryWeb.Repository
             return books;
         }
 
-        /*protected override BookModel GetEntity(SqlDataReader reader, SqlConnection connection)
+        private AuthorModel MapAuthor(SqlDataReader reader)
         {
-            int bookId = Int32.Parse(reader["Id"].ToString());
-            var authorIds = this._booksAuthorRepo.Select($"SELECT * FROM BooksAuthor WHERE id={bookId};", connection);
-            return new BookModel
+            return new AuthorModel
             {
-                Id = bookId,
-                Title = reader["Title"].ToString(),
-                TotalQuantity = Int32.Parse(reader["Total"].ToString()),
-                AvailableQuantity = Int32.Parse(reader["Available"].ToString()),
-                Authors = this._authorRepo.Select(
-                    $"SELECT * FROM Authors WHERE id in ({String.Join(",", authorIds.Select(x => x.AuthorId))})",
-                    connection)
-                    .ToList()
+                Id = Int32.Parse(reader["AuthorId"].ToString()),
+                FullName = reader["FullName"].ToString()
             };
-        }*/
+        }
     }
 }
