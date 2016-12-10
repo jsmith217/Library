@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using PagedList;
 using LibraryWeb.Repository;
 using LibraryWeb.Service;
 using LibraryWeb.Models.Books;
@@ -19,23 +20,26 @@ namespace LibraryWeb.Controllers
         }
 
         // GET: Book
-        public ActionResult Index(string orderColumn, bool? viewAvailableOnly)
+        public ActionResult Index(string orderColumn, bool? viewAvailableOnly, int? page)
         {
             var books = new List<BookModel>();
+
+            ViewBag.CurrentSort = orderColumn;
+            ViewBag.TitleSortParm = String.IsNullOrEmpty(orderColumn) ? "Title desc" : "Title";
+            ViewBag.TotalSortParm = orderColumn == "Total" ? "Total desc" : "Total";
+            ViewBag.AvailableSortParm = orderColumn == "Available" ? "Available desc" : "Available";
+
             if (viewAvailableOnly.HasValue && viewAvailableOnly.Value)
             {
                 books = this._bookService.GetAllAvailableBooks();
             }
             else
             {
-                ViewBag.TitleSortParm = String.IsNullOrEmpty(orderColumn) ? "Title desc" : "Title";
-                ViewBag.TotalSortParm = orderColumn == "Total" ? "Total desc" : "Total";
-                ViewBag.AvailableSortParm = orderColumn == "Available" ? "Available desc" : "Available";
-
                 books = this._bookService.GetAllBooks(orderColumn);
             }
 
-            return View("Index", books);
+            int pageSize = 3;
+            return View("Index", books.ToPagedList(page ?? 1, pageSize));
         }
 
         [Authorize]

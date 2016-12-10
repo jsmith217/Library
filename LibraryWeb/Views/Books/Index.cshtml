@@ -1,4 +1,6 @@
-﻿@model IEnumerable<LibraryWeb.Models.Books.BookModel>
+﻿@model PagedList.IPagedList<LibraryWeb.Models.Books.BookModel>
+@using PagedList.Mvc;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewBag.Title = "Index";
@@ -7,10 +9,10 @@
 <h2>Index</h2>
 
 <p>
-    <div class="col-sm-4"> 
+    <div class="col-sm-2"> 
         @Html.ActionLink("Create New", "Create")
     </div>
-    <div class="col-sm-2">
+    <div class="col-sm-1 btn btn-default">
         @Ajax.ActionLink("View All", "Index", new { viewAvailableOnly = false },
         new AjaxOptions
         {
@@ -20,7 +22,7 @@
         })
 
     </div>
-  <div class="col-sm-1">
+  <div class="col-sm-2 btn btn-default">
       @Ajax.ActionLink("View Available", "Index",
       new { viewAvailableOnly = true },
       new AjaxOptions
@@ -44,7 +46,7 @@
                 @Html.ActionLink("Available", "Index", new { orderColumn = ViewBag.AvailableSortParm })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Authors)
+                @Html.DisplayName("Authors")
             </th>
             <th></th>
         </tr>
@@ -73,6 +75,8 @@
                 </td>
             </tr>
         }
-
+       
     </table>
+    Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, orderColumn = ViewBag.CurrentSort }))
 </div>
