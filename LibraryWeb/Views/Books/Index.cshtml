@@ -7,50 +7,72 @@
 <h2>Index</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
-    @using (Html.BeginForm())
-    {
-    }
+    <div class="col-sm-4"> 
+        @Html.ActionLink("Create New", "Create")
+    </div>
+    <div class="col-sm-2">
+        @Ajax.ActionLink("View All", "Index", new { viewAvailableOnly = false },
+        new AjaxOptions
+        {
+            HttpMethod = "GET",
+            InsertionMode = InsertionMode.Replace,
+            UpdateTargetId = "bookList"
+        })
+
+    </div>
+  <div class="col-sm-1">
+      @Ajax.ActionLink("View Available", "Index",
+      new { viewAvailableOnly = true },
+      new AjaxOptions
+      {
+          HttpMethod = "GET",
+          InsertionMode = InsertionMode.Replace,
+          UpdateTargetId = "bookList"
+      })
+  </div>
 </p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.ActionLink("Title", "Index", new { orderColumn = ViewBag.TitleSortParm })
-        </th>
-        <th>
-            @Html.ActionLink("Total", "Index", new { orderColumn = ViewBag.TotalSortParm })                                                                                       
-        </th>
-        <th>
-            @Html.ActionLink("Available", "Index", new { orderColumn = ViewBag.AvailableSortParm })
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Authors)
-        </th>
-        <th></th>
-    </tr>
+<div id="bookList">
+    <table class="table">
+        <tr>
+            <th>
+                @Html.ActionLink("Title", "Index", new { orderColumn = ViewBag.TitleSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Total", "Index", new { orderColumn = ViewBag.TotalSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Available", "Index", new { orderColumn = ViewBag.AvailableSortParm })
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Authors)
+            </th>
+            <th></th>
+        </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Title)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TotalQuantity)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.AvailableQuantity)
-        </td>
-        <td>
-            @{ string authorNames = item.Authors == null ? "-" : String.Join(", ", item.Authors.Select(a => a.FullName).ToArray());}
-            @Html.DisplayFor(modelItem => authorNames)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id }) |
-            @Html.ActionLink("Take", "Take", new { id = item.Id }) |
-        </td>
-    </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalQuantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AvailableQuantity)
+                </td>
+                <td>
+                    @{ string authorNames = item.Authors == null ? "-" : String.Join(", ", item.Authors.Select(a => a.FullName).ToArray());}
+                    @Html.DisplayFor(modelItem => authorNames)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id }) |
+                    @Html.ActionLink("Take", "Take", new { id = item.Id }) |
+                </td>
+            </tr>
+        }
 
-</table>
+    </table>
+</div>

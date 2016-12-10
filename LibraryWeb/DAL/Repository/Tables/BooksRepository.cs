@@ -16,7 +16,7 @@ namespace LibraryWeb.Repository
         private AuthorsRepository _authorRepo;
         private BooksAuthorsRepository _booksAuthorRepo;
 
-        private string _selectionString = "SELECT b.*, a.* FROM Books B INNER JOIN BooksAuthors ba ON ba.BookId=b.Id INNER JOIN Authors a ON a.Id=ba.AuthorId WHERE b.Total > 0 {0};";
+        private string _selectionString = "SELECT b.*, a.* FROM Books B LEFT JOIN BooksAuthors ba ON ba.BookId=b.Id LEFT JOIN Authors a ON a.Id=ba.AuthorId WHERE b.Total > 0 {1} {0};";
 
         public BooskRepository()
         {
@@ -89,46 +89,64 @@ namespace LibraryWeb.Repository
         }
         #endregion
 
-        public List<BookModel> GetAllBooks(SqlConnection connection, string orderColumn)
+        public List<BookModel> GetAllBooks(string orderColumn, List<string> conditions)
         {
             List<BookModel> books = new List<BookModel>();
-            string commandText = String.IsNullOrEmpty(orderColumn) 
-                ? String.Format(this._selectionString, orderColumn)
-                : String.Format(this._selectionString, $"ORDER BY {orderColumn}");
-            using (SqlCommand command = new SqlCommand(commandText, connection))
+            string orderText = String.IsNullOrEmpty(orderColumn) ? "" : $"ORDER BY {orderColumn}";
+            string conditionsText = conditions == null ? "" : "AND " + String.Join(" AND ", conditions);
+
+            using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
-                var reader = command.ExecuteReader();
-                while (reader.Read())
+                string commandText = String.Format(this._selectionString, orderText, conditionsText);
+                using (SqlCommand command = new SqlCommand(commandText, connection))
                 {
-                    int bookId = Int32.Parse(reader["Id"].ToString());
-                    BookModel currentBook = null;
-                    if ((currentBook = books.FirstOrDefault(b => b.Id == bookId)) == null)
+                    try
                     {
-                        books.Add(new BookModel
+                        connection.Open();
+                        var reader = command.ExecuteReader();
+                        while (reader.Read())
                         {
-                            Id = Int32.Parse(reader["Id"].ToString()),
-                            Title = reader["Title"].ToString(),
-                            TotalQuantity = Int32.Parse(reader["Total"].ToString()),
-                            AvailableQuantity = Int32.Parse(reader["Available"].ToString()),
-                            Authors = new List<AuthorModel>() { new AuthorModel
+                            int bookId = Int32.Parse(reader["Id"].ToString());
+                            BookModel currentBook = null;
+                            if ((currentBook = books.FirstOrDefault(b => b.Id == bookId)) == null)
                             {
-                                Id = Int32.Parse(reader["Id"].ToString()),
-                                FullName = reader["FullName"].ToString()
+                                books.Add(new BookModel
+                                {
+                                    Id = Int32.Parse(reader["Id"].ToString()),
+                                    Title = reader["Title"].ToString(),
+                                    TotalQuantity = Int32.Parse(reader["Total"].ToString()),
+                                    AvailableQuantity = Int32.Parse(reader["Available"].ToString()),
+                                    Authors = new List<AuthorModel>()
+                                    {
+                                        new AuthorModel
+                                        {
+                                            Id = Int32.Parse(reader["Id"].ToString()),
+                                            FullName = reader["FullName"].ToString()
+                                        }
+                                    }
+                                });
                             }
-                        },
-                        });
+                            else
+                            {
+                                currentBook.Authors.Add(new AuthorModel
+                                {
+                                    Id = Int32.Parse(reader["Id"].ToString()),
+                                    FullName = reader["FullName"].ToString()
+                                });
+                            }
+                        }
+                        reader.Close();
                     }
-                    else
+                    catch (SqlException ex)
                     {
-                        currentBook.Authors.Add(new AuthorModel
-                        {
-                            Id = Int32.Parse(reader["Id"].ToString()),
-                            FullName = reader["FullName"].ToString()
-                        });
+                        throw new ArgumentException($"Wrong select query: {ex.Message}");
+                    }
+                    finally
+                    {
+                        connection.Close();
                     }
                 }
             }
-            
             return books;
         }
 

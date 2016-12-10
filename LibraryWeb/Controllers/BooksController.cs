@@ -5,20 +5,37 @@ using System.Web;
 using System.Web.Mvc;
 using LibraryWeb.Repository;
 using LibraryWeb.Service;
+using LibraryWeb.Models.Books;
 
 namespace LibraryWeb.Controllers
 {
     public class BooksController : Controller
     {
-        // GET: Book
-        public ActionResult Index(string orderColumn)
-        {
-            ViewBag.TitleSortParm = String.IsNullOrEmpty(orderColumn) ? "Title desc" : "Title";
-            ViewBag.TotalSortParm = orderColumn == "Total" ? "Total desc" : "Total";
-            ViewBag.AvailableSortParm = orderColumn == "Available" ? "Available desc" : "Available";
+        private BookService _bookService;
 
-            BookService bookService = new BookService();
-            return View("Index", bookService.GetAllBooks(orderColumn));
+        public BooksController()
+        {
+            this._bookService = new BookService();
+        }
+
+        // GET: Book
+        public ActionResult Index(string orderColumn, bool? viewAvailableOnly)
+        {
+            var books = new List<BookModel>();
+            if (viewAvailableOnly.HasValue && viewAvailableOnly.Value)
+            {
+                books = this._bookService.GetAllAvailableBooks();
+            }
+            else
+            {
+                ViewBag.TitleSortParm = String.IsNullOrEmpty(orderColumn) ? "Title desc" : "Title";
+                ViewBag.TotalSortParm = orderColumn == "Total" ? "Total desc" : "Total";
+                ViewBag.AvailableSortParm = orderColumn == "Available" ? "Available desc" : "Available";
+
+                books = this._bookService.GetAllBooks(orderColumn);
+            }
+
+            return View("Index", books);
         }
 
         [Authorize]

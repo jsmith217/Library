@@ -107,25 +107,12 @@ namespace LibraryWeb.Service
 
         public List<BookModel> GetAllBooks(string orderColumn)
         {
-            List<BookModel> books = new List<BookModel>();
-            using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
-            {
-                try
-                {
-                    connection.Open();
-                    books = this._booksRepo.GetAllBooks(connection, orderColumn);
-                }
-                catch (SqlException ex)
-                {
-                    throw new ArgumentException(ex.Message);
-                }
-                finally
-                {
-                    connection.Close();
-                }
-            }
+            return this._booksRepo.GetAllBooks(orderColumn, null);
+        }
 
-            return books;
+        public List<BookModel> GetAllAvailableBooks()
+        {
+            return this._booksRepo.GetAllBooks(null, new List<string> { "Available > 0" });
         }
     }
 }
