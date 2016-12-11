@@ -7,15 +7,15 @@ using LibraryWeb.Models.Authors;
 
 namespace LibraryWeb.Repository
 {
-    public class AuthorsRepository : AbstractRepository<AuthorModel>
+    public class AuthorsRepository : IRepository<AuthorModel>
     {
         // Deprecate deletion.
-        public override void Delete(AuthorModel entity, SqlConnection connection)
+        public void Delete(AuthorModel entity, SqlConnection connection)
         {
             throw new NotImplementedException();
         }
 
-        public override void Insert(AuthorModel entity, SqlConnection connection)
+        public void Insert(AuthorModel entity, SqlConnection connection)
         {
             string commandText = $"INSERT INTO Authors (FullName) VALUES @fullName";
             using (SqlCommand command = new SqlCommand(commandText, connection))
@@ -32,7 +32,7 @@ namespace LibraryWeb.Repository
             }
         }
 
-        public override void Update(AuthorModel entity, SqlConnection connection)
+        public void Update(AuthorModel entity, SqlConnection connection)
         {
             string commandText = "UPDATE Authors SET FullName = @fullName WHERE id=@id;";
             using (SqlCommand command = new SqlCommand(commandText, connection))

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Data.SqlClient;
 using LibraryWeb.Models.Books;
+using LibraryWeb.Models.Authors;
 
 namespace LibraryWeb.Repository.Mappers
 {
@@ -17,7 +18,15 @@ namespace LibraryWeb.Repository.Mappers
                 Title = dataReader["Title"].ToString(),
                 TotalQuantity = Int32.Parse(dataReader["Total"].ToString()),
                 AvailableQuantity = Int32.Parse(dataReader["Available"].ToString()),
-                Authors = new List<Models.Authors.AuthorModel>()
+                Authors = new List<AuthorModel>()
+            };
+        }
+        public AuthorModel MapAuthor(SqlDataReader reader)
+        {
+            return new AuthorModel
+            {
+                Id = Int32.Parse(reader["AuthorId"].ToString()),
+                FullName = reader["FullName"].ToString()
             };
         }
     }

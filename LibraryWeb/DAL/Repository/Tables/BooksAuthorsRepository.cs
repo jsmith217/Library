@@ -12,16 +12,16 @@ namespace LibraryWeb.Repository
     /// <summary>
     /// Responsible for books to authors relationship.
     /// </summary>
-    public class BooksAuthorsRepository : AbstractRepository<BookModel>
+    public class BooksAuthorsRepository : IRepository<BookModel>
     {
         #region Write
-        public override void Delete(BookModel entity, SqlConnection connection)
+        public void Delete(BookModel entity, SqlConnection connection)
         {
             throw new NotImplementedException();
         }
         
 
-        public override void Insert(BookModel entities, SqlConnection connection)
+        public void Insert(BookModel entities, SqlConnection connection)
         {
             var commandText = new StringBuilder("INSERT INTO BooksAuthors (BookId, AuthorId) VALUES ");
             commandText.Append(String.Join(",", entities.Authors.Select((a, index) => $"(@bookId, @authorId{index})")));
@@ -44,7 +44,7 @@ namespace LibraryWeb.Repository
             }
         }
 
-        public override void Update(BookModel entity, SqlConnection connection)
+        public void Update(BookModel entity, SqlConnection connection)
         {
             entity.Authors.ForEach(a => this.Update(new Tuple<int, int>(entity.Id, a.Id), connection));
         }

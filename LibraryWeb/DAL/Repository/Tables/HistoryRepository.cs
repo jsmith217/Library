@@ -11,7 +11,7 @@ using LibraryWeb.Repository.Mappers;
 
 namespace LibraryWeb.Repository
 {
-    public class HistoryRepository : AbstractRepository<HistoryModel>
+    public class HistoryRepository : IRepository<HistoryModel>
     {
         private string _selectionString;
 
@@ -32,12 +32,12 @@ LEFT JOIN Books b ON b.id = h.BookId{0};";
         }
 
         // Deprecate deletion.
-        public override void Delete(HistoryModel entity, SqlConnection connection)
+        public void Delete(HistoryModel entity, SqlConnection connection)
         {
             throw new NotImplementedException();
         }
 
-        public override void Insert(HistoryModel entity, SqlConnection connection)
+        public void Insert(HistoryModel entity, SqlConnection connection)
         {
             throw new NotImplementedException();
         }
@@ -72,7 +72,7 @@ LEFT JOIN Books b ON b.id = h.BookId{0};";
             }
         }
         
-        public override void Update(HistoryModel history, SqlConnection connection)
+        public void Update(HistoryModel history, SqlConnection connection)
         {
             //HistoryValidation.Validate(history);
             string commandText = @"UPDATE History SET BookId=@bookId,ReaderId=@readerId,DateTaken=@dateTaken,DateReturned=@dateReturned WHERE id=@id";

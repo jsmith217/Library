@@ -5,6 +5,7 @@ using System.Web;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using LibraryWeb.Models.History;
+using LibraryWeb.Models.Roles;
 
 namespace LibraryWeb.Models.Readers
 {
@@ -25,6 +26,8 @@ namespace LibraryWeb.Models.Readers
         [DisplayName("Password")]
         [StringLength(30)]
         public string Password { get; set; }
+
+        public RoleModel Role { get; set; }
 
         public List<HistoryModel> History { get; set; }
     }

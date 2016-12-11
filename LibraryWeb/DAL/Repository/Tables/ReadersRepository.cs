@@ -10,7 +10,7 @@ using LibraryWeb.Repository.Mappers;
 
 namespace LibraryWeb.Repository
 {
-    public class ReadersRepository : AbstractRepository<ReaderModel>
+    public class ReadersRepository : IRepository<ReaderModel>
     {
         private ReaderMapper _readerMapper;
 
@@ -21,15 +21,15 @@ namespace LibraryWeb.Repository
 
         #region Write
         // Deprecate deletion.
-        public override void Delete(ReaderModel entity, SqlConnection connection)
+        public void Delete(ReaderModel entity, SqlConnection connection)
         {
             throw new NotImplementedException();
         }
 
-        public override void Insert(ReaderModel entity, SqlConnection connection)
+        public void Insert(ReaderModel entity, SqlConnection connection)
         {
             ReaderValidation.Validate(entity);
-            string commandText = $"INSERT INTO Readers(Email, FullName, Password) VALUES(@email, @fullName, @password);";
+            string commandText = $"INSERT INTO Readers(Email, FullName, Password, RoleId) VALUES(@email, @fullName, @password, @roleId);";
             using (SqlCommand command = new SqlCommand(commandText, connection))
             {
                 command.Parameters.AddWithValue("@email", entity.Email);
@@ -51,7 +51,7 @@ namespace LibraryWeb.Repository
             }
         }
 
-        public override void Update(ReaderModel entity, SqlConnection connection)
+        public void Update(ReaderModel entity, SqlConnection connection)
         {
             ReaderValidation.Validate(entity);
             string commandText = $"UPDATE Readers SET FullName=@fullName, Email=@email, Password=@password WHERE id=@id";
@@ -85,7 +85,7 @@ namespace LibraryWeb.Repository
             {
                 string conditionText = conditions == null || conditions.Count == 0
                     ? "" : String.Concat(" WHERE ", String.Join(" AND ", conditions));
-                string commandText = String.Format("SELECT * FROM Readers{0};", conditionText);
+                string commandText = String.Format("SELECT r.*, roles.Id, roles.Name from Readers r INNER JOIN RoleData roles ON r.RoleId=roles.Id{0};", conditionText);
                 using (SqlCommand command = new SqlCommand(commandText, connection))
                 {
                     try
@@ -108,7 +108,6 @@ namespace LibraryWeb.Repository
                     }
                 }
             }
-
             return readers;
         }
     }

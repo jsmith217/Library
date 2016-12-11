@@ -31,7 +31,8 @@
                     @Html.DisplayFor(modelItem => item.Status)
                 </td>
                 <td>
-                    @{ string authorNames = item.Authors == null ? "-" : String.Join(", ", item.Authors.Select(a => a.FullName).ToArray());}
+                    @{ string authorNames = item.Authors == null || item.Authors.Count == 0
+                             ? "-" : String.Join(", ", item.Authors.Select(a => a.FullName).ToArray());}
                     @Html.DisplayFor(modelItem => authorNames)
                 </td>
                 <td>

@@ -5,25 +5,28 @@ using System.Web;
 using System.Data.SqlClient;
 using LibraryWeb.Models.Books;
 using LibraryWeb.Models.Authors;
+using LibraryWeb.Repository.Mappers;
 
 namespace LibraryWeb.Repository
 {
     /// <summary>
     /// Represents book repository for elementary CRUD.
     /// </summary>
-    public class BooskRepository : AbstractRepository<BookModel>
+    public class BooskRepository : IRepository<BookModel>
     {
         private readonly string _selectionString;
+        private readonly BookMapper _mapper;
 
         public BooskRepository()
         {
-            _selectionString = @"SELECT b.*, a.Id as AuthorId, a.FullName FROM Books b 
+            this._mapper = new BookMapper();
+            this._selectionString = @"SELECT b.*, a.Id as AuthorId, a.FullName FROM Books b 
 LEFT JOIN BooksAuthors ba ON ba.BookId=b.Id 
-LEFT JOIN Authors a ON a.Id=ba.AuthorId WHERE b.Total > 0 {1} {0};";
+LEFT JOIN Authors a ON a.Id=ba.AuthorId {1} {0};";
         }
 
         #region Write
-        public override void Delete(BookModel entity, SqlConnection connection)
+        public void Delete(BookModel entity, SqlConnection connection)
         {
             string commandText = "DELETE FROM Books WHERE id=@id";
             using (SqlCommand command = new SqlCommand(commandText, connection))
@@ -40,7 +43,7 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId WHERE b.Total > 0 {1} {0};";
             }
         }
 
-        public override void Insert(BookModel entity, SqlConnection connection)
+        public void Insert(BookModel entity, SqlConnection connection)
         {
             BookValidator.Validate(entity);
             string commandText = $"INSERT INTO Books (Title, Total, Available) VALUES (@title, @total, @available);";
@@ -65,7 +68,7 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId WHERE b.Total > 0 {1} {0};";
         /// Updates book.
         /// </summary>
         /// <param name="entity"></param>
-        public override void Update(BookModel entity, SqlConnection connection)
+        public void Update(BookModel entity, SqlConnection connection)
         {
             BookValidator.Validate(entity);
             string commandText = "UPDATE Books SET Title=@title, Total=@total, Available=@available WHERE id=@id;";
@@ -86,12 +89,12 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId WHERE b.Total > 0 {1} {0};";
             }
         }
         #endregion
-
-        public List<BookModel> GetAllBooks(string orderColumn, List<string> conditions)
+        
+        public List<BookModel> Select(string orderColumn, List<string> conditions)
         {
             List<BookModel> books = new List<BookModel>();
             string orderText = String.IsNullOrEmpty(orderColumn) ? "" : $"ORDER BY {orderColumn}";
-            string conditionsText = conditions == null ? "" : "AND " + String.Join(" AND ", conditions);
+            string conditionsText = conditions == null ? "" : " WHERE " + String.Join(" AND ", conditions);
 
             using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
@@ -106,22 +109,30 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId WHERE b.Total > 0 {1} {0};";
                         {
                             int bookId = Int32.Parse(reader["Id"].ToString());
                             BookModel currentBook = null;
+                            var authorId = reader["AuthorId"].ToString();
+                            AuthorModel currentAuthor = String.IsNullOrEmpty(authorId) ? null : this._mapper.MapAuthor(reader);
                             if ((currentBook = books.FirstOrDefault(b => b.Id == bookId)) == null)
                             {
-                                books.Add(new BookModel {
+                                currentBook = new BookModel
+                                {
                                     Id = bookId,
                                     Title = reader["Title"].ToString(),
                                     TotalQuantity = Int32.Parse(reader["Total"].ToString()),
                                     AvailableQuantity = Int32.Parse(reader["Available"].ToString()),
                                     Authors = new List<AuthorModel>()
-                                    {
-                                        this.MapAuthor(reader)
-                                    }
-                                });
+                                };
+                                if (currentAuthor != null)
+                                {
+                                    currentBook.Authors.Add(this._mapper.MapAuthor(reader));
+                                }
+                                books.Add(currentBook);
                             }
                             else
                             {
-                                currentBook.Authors.Add(this.MapAuthor(reader));
+                                if (currentAuthor != null)
+                                {
+                                    currentBook.Authors.Add(currentAuthor);
+                                }
                             }
                         }
                         reader.Close();
@@ -137,15 +148,6 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId WHERE b.Total > 0 {1} {0};";
                 }
             }
             return books;
-        }
-
-        private AuthorModel MapAuthor(SqlDataReader reader)
-        {
-            return new AuthorModel
-            {
-                Id = Int32.Parse(reader["AuthorId"].ToString()),
-                FullName = reader["FullName"].ToString()
-            };
         }
     }
 }
