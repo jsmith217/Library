@@ -16,13 +16,15 @@ namespace LibraryWeb.Repository
     {
         private readonly string _selectionString;
         private readonly BookMapper _mapper;
+        private ReadCommandBuilder _commandBuilder;
 
         public BooskRepository()
         {
             this._mapper = new BookMapper();
+            this._commandBuilder = new ReadCommandBuilder();
             this._selectionString = @"SELECT b.*, a.Id as AuthorId, a.FullName FROM Books b 
 LEFT JOIN BooksAuthors ba ON ba.BookId=b.Id 
-LEFT JOIN Authors a ON a.Id=ba.AuthorId {1} {0};";
+LEFT JOIN Authors a ON a.Id=ba.AuthorId";
         }
 
         #region Write
@@ -94,12 +96,11 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId {1} {0};";
         {
             List<BookModel> books = new List<BookModel>();
             string orderText = String.IsNullOrEmpty(orderColumn) ? "" : $"ORDER BY {orderColumn}";
-            string conditionsText = conditions == null ? "" : " WHERE " + String.Join(" AND ", conditions);
 
             using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
-                string commandText = String.Format(this._selectionString, orderText, conditionsText);
-                using (SqlCommand command = new SqlCommand(commandText, connection))
+                using (SqlCommand command = this._commandBuilder.BuildNotSecureCommand(
+                    this._selectionString, connection, conditions, orderText))
                 {
                     try
                     {
@@ -149,5 +150,6 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId {1} {0};";
             }
             return books;
         }
+        
     }
 }

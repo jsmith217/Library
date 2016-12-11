@@ -208,6 +208,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\Domain\ReadersController.cs" />
+    <Compile Include="DAL\Pair.cs" />
     <Compile Include="DAL\Repository\Mappers\BookMapper.cs" />
     <Compile Include="DAL\Repository\Mappers\HistoryMapper.cs" />
     <Compile Include="DAL\Repository\Mappers\IMapper.cs" />
@@ -220,6 +221,7 @@
     <Compile Include="DAL\Repository\Tables\HistoryRepository.cs" />
     <Compile Include="DAL\Repository\Tables\ReadersRepository.cs" />
     <Compile Include="DAL\Repository\Tables\RoleRepository.cs" />
+    <Compile Include="DAL\ReadCommandBuilder.cs" />
     <Compile Include="DAL\Service\BookService.cs" />
     <Compile Include="DAL\Service\HistoryService.cs" />
     <Compile Include="DAL\Service\ICommonQueries.cs" />

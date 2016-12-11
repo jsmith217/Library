@@ -18,17 +18,20 @@ namespace LibraryWeb.Repository
         private ReaderMapper _readerMapper;
         private HistoryMapper _historyMapper;
 
+        private ReadCommandBuilder _commandBuilder;
+
         public HistoryRepository()
         {
             this._readerMapper = new ReaderMapper();
             this._historyMapper = new HistoryMapper();
+            this._commandBuilder = new ReadCommandBuilder();
             this._selectionString = @"
 SELECT r.Id as ReaderId,r.FullName,r.Email,r.Password,
 b.Id as BookId,b.Title,b.Available,b.Total,
 h.Id as HistoryId,h.DateTaken,h.DateReturned
 FROM Readers r 
 LEFT JOIN History h ON r.Id=h.ReaderId
-LEFT JOIN Books b ON b.id = h.BookId{0};";
+LEFT JOIN Books b ON b.id = h.BookId";
         }
 
         // Deprecate deletion.
@@ -99,10 +102,8 @@ LEFT JOIN Books b ON b.id = h.BookId{0};";
             var histories = new List<HistoryModel>();
             using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
-                string conditionsText = conditions == null || conditions.Count == 0
-                    ? "" : " WHERE " + String.Join(" AND ", conditions);
-                string commandText = String.Format(this._selectionString, conditionsText);
-                using (SqlCommand command = new SqlCommand(commandText, connection))
+                using (SqlCommand command = this._commandBuilder.BuildNotSecureCommand(
+                    this._selectionString, connection, conditions, ""))
                 {
                     try
                     {

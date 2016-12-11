@@ -13,10 +13,14 @@ namespace LibraryWeb.Repository
     public class ReadersRepository : IRepository<ReaderModel>
     {
         private ReaderMapper _readerMapper;
+        private ReadCommandBuilder _commandBuilder;
+        private string _selectionString;
 
         public ReadersRepository()
         {
             this._readerMapper = new ReaderMapper();
+            this._commandBuilder = new ReadCommandBuilder();
+            this._selectionString = "SELECT r.*, roles.Id, roles.Name from Readers r INNER JOIN RoleData roles ON r.RoleId=roles.Id";
         }
 
         #region Write
@@ -78,36 +82,39 @@ namespace LibraryWeb.Repository
         }
         #endregion
 
-        public List<ReaderModel> LightWeightSelect(List<string> conditions)
+        public List<ReaderModel> Select(List<Pair> conditions)
         {
-            var readers = new List<ReaderModel>();
             using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
-                string conditionText = conditions == null || conditions.Count == 0
-                    ? "" : String.Concat(" WHERE ", String.Join(" AND ", conditions));
-                string commandText = String.Format("SELECT r.*, roles.Id, roles.Name from Readers r INNER JOIN RoleData roles ON r.RoleId=roles.Id{0};", conditionText);
-                using (SqlCommand command = new SqlCommand(commandText, connection))
-                {
-                    try
-                    {
-                        connection.Open();
-                        var dataReader = command.ExecuteReader();
-                        while (dataReader.Read())
-                        {
-                            readers.Add(this._readerMapper.Map(dataReader));
-                        }
-                        dataReader.Close();
-                    }
-                    catch (SqlException ex)
-                    {
-                        throw new ArgumentException($"Wrong select readers query: {ex.Message}");
-                    }
-                    finally
-                    {
-                        connection.Close();
-                    }
-                }
+                return this.ExecuteCommand(this._commandBuilder.BuildSecureCommand(
+                         this._selectionString,
+                         connection,
+                         conditions, ""));
             }
+        }
+
+        public List<ReaderModel> ExecuteCommand(SqlCommand command)
+        {
+            List<ReaderModel> readers = new List<ReaderModel>();
+            try
+            {
+                command.Connection.Open();
+                var dataReader = command.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    readers.Add(this._readerMapper.Map(dataReader));
+                }
+                dataReader.Close();
+            }
+            catch (SqlException ex)
+            {
+                throw new ArgumentException($"Wrong select readers query: {ex.Message}");
+            }
+            finally
+            {
+                command.Connection.Close();
+            }
+
             return readers;
         }
     }

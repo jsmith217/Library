@@ -13,9 +13,15 @@ namespace LibraryWeb.Repository.Mappers
     {
         public HistoryModel Map(SqlDataReader dataReader)
         {
+            string historyId = dataReader["HistoryId"].ToString();
+            if (String.IsNullOrEmpty(historyId))
+            {
+                return new HistoryModel { Reader = this.MapReader(dataReader), Book = this.MapBook(dataReader) };
+            }
+
             return new HistoryModel
             {
-                Id = Int32.Parse(dataReader["HistoryId"].ToString()),
+                Id = Int32.Parse(historyId),
                 DateTaken = DateTime.Parse(dataReader["DateTaken"].ToString()),
                 DateReturned = DateTime.Parse(dataReader["DateReturned"].ToString()),
                 Book = this.MapBook(dataReader),
@@ -25,9 +31,15 @@ namespace LibraryWeb.Repository.Mappers
 
         private BookModel MapBook(SqlDataReader reader)
         {
+            var bookId = reader["BookId"].ToString();
+            if (String.IsNullOrEmpty(bookId))
+            {
+                return null;
+            }
+
             return new BookModel
             {
-                Id = Int32.Parse(reader["BookId"].ToString()),
+                Id = Int32.Parse(bookId),
                 Title = reader["Title"].ToString(),
                 AvailableQuantity = Int32.Parse(reader["Available"].ToString()),
                 TotalQuantity = Int32.Parse(reader["Total"].ToString())
@@ -36,9 +48,15 @@ namespace LibraryWeb.Repository.Mappers
 
         private ReaderModel MapReader(SqlDataReader dataReader)
         {
+            var readerId = dataReader["ReaderId"].ToString();
+            if (String.IsNullOrEmpty(readerId))
+            {
+                return null;
+            }
+
             return new ReaderModel
             {
-                Id = Int32.Parse(dataReader["ReaderId"].ToString()),
+                Id = Int32.Parse(readerId),
                 FullName = dataReader["FullName"].ToString(),
                 Email = dataReader["Email"].ToString(),
                 Password = dataReader["Password"].ToString(),

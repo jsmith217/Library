@@ -21,12 +21,22 @@ namespace LibraryWeb.Service
 
         public List<ReaderModel> GetAllReaders()
         {
-            return this._readersRepo.LightWeightSelect(null);
+            return this._readersRepo.Select(null);
         }
 
         public ReaderModel GetById(int id)
         {
-            return this._readersRepo.LightWeightSelect(new List<string> { $"Id={id}" }).First();
+            return this._readersRepo.Select(new List<Pair> { new Pair("r.Id", "=", $"{id}") }).First();
+        }
+
+        public ReaderModel GetByDetails(ReaderModel reader)
+        {
+            string passwordCondition = $"Password={reader.Password}" ?? "Password IS NULL";
+            return this._readersRepo.Select(new List<Pair>
+            {
+                new Pair("Email", "=", $"{reader.Email}"),
+                
+            }).First();
         }
 
         public void SendMail(ReaderModel reader)

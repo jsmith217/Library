@@ -9,17 +9,22 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using LibraryWeb.Models;
+using LibraryWeb.Models.Readers;
+using LibraryWeb.Service;
 
 namespace LibraryWeb.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
+        private ReaderService _readerService { get; }
+
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
         public AccountController()
         {
+            this._readerService = new ReaderService();
         }
 
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
@@ -73,6 +78,10 @@ namespace LibraryWeb.Controllers
                 return View(model);
             }
 
+            ReaderModel loginReader = new ReaderModel { Email = model.Email, Password = model.Password };
+            //var dbReader = this._readerService.GetById()
+            return null;
+            /*
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
@@ -88,7 +97,7 @@ namespace LibraryWeb.Controllers
                 default:
                     ModelState.AddModelError("", "Invalid login attempt.");
                     return View(model);
-            }
+            }*/
         }
 
         //

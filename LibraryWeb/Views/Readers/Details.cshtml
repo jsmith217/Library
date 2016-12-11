@@ -26,22 +26,31 @@
     </dl>
     <div>
         <h4>Reader's history</h4>
-        <table class="table">
-            <tr>
-                <th>Book</th>
-                <th>Taken at</th>
-                <th>Returned at</th>
-            </tr>
-            @foreach (var item in Model.History)
+        @{
+            if (Model.History == null)
             {
-                <tr>
-                    <td>@Html.ActionLink(item.Book.Title, "Details", "Books", new { id = item.Book.Id }, null)</td>
-                    <td>@item.DateTaken</td>
-                    @{ var date = item.DateReturned.HasValue ? item.DateReturned.ToString() : "-";}
-                    <td>@date</td>
-                </tr>
+                <h3>Reader '@(Model.FullName)' hasn't taken any books yet.</h3>
             }
-        </table>
+            else
+            {
+                <table class="table">
+                    <tr>
+                        <th>Book</th>
+                        <th>Taken at</th>
+                        <th>Returned at</th>
+                    </tr>
+                    @foreach (var item in Model.History)
+                    {
+                        <tr>
+                            <td>@Html.ActionLink(item.Book.Title, "Details", "Books", new { id = item.Book.Id }, null)</td>
+                            <td>@item.DateTaken</td>
+                            @{ var date = item.DateReturned.HasValue ? item.DateReturned.ToString() : "-";}
+                            <td>@date</td>
+                        </tr>
+                                }
+                </table>
+                                }
+        }
     </div>
 </div>
 <p>

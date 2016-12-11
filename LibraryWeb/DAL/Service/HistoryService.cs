@@ -11,15 +11,27 @@ namespace LibraryWeb.Service
     public class HistoryService
     {
         private HistoryRepository _historyRepo;
+        private ReaderService _readerService;
+        private BookService _bookService;
 
         public HistoryService()
         {
             this._historyRepo = new HistoryRepository();
+            this._readerService = new ReaderService();
+            this._bookService = new BookService();
         }
 
         public ReaderModel GetReaderHistory(int readerId)
         {
+            // Handle not existing readers.
             var history = this._historyRepo.Select(new List<string> { $"r.Id={readerId}" });
+            if (history.First().Book == null)
+            {
+                var reader = this._readerService.GetById(readerId);
+                reader.History = null;
+                return reader;
+            }
+
             return new ReaderModel
             {
                 Id = history.First().Reader.Id,
@@ -33,6 +45,13 @@ namespace LibraryWeb.Service
         public BookModel GetBookHistory(int bookId)
         {
             var history = this._historyRepo.Select(new List<string> { $"b.Id={bookId}" });
+            if (history.Count == 0 || history.First().Book == null)
+            {
+                var book = this._bookService.GetById(bookId);
+                book.History = null;
+                return book;
+            }
+
             return new BookModel
             {
                 History = history,
