@@ -50,7 +50,7 @@ Left join Authors a on a.id = ba.AuthorId";
             using (SqlCommand command = new SqlCommand(commandText.ToString(), connection))
             {
                 command.Parameters.AddWithValue("@bookId", entity.Book.Id);
-                command.Parameters.AddWithValue("@readerId", entity.Id);
+                command.Parameters.AddWithValue("@readerId", entity.Reader.Id);
                 command.Parameters.AddWithValue("@dateTaken", entity.DateTaken);
                 command.Parameters.AddWithValue("@dateReturned", (object)entity.DateReturned ?? DBNull.Value);
 

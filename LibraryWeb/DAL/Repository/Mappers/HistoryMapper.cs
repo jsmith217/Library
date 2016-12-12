@@ -26,8 +26,6 @@ namespace LibraryWeb.Repository.Mappers
                 Id = Int32.Parse(historyId),
                 DateTaken = DateTime.Parse(dataReader["DateTaken"].ToString()),
                 DateReturned = String.IsNullOrEmpty(returnDate) ? null : new Nullable<DateTime>(DateTime.Parse(returnDate))
-                //Book = this.MapBook(dataReader),
-                //Reader = this.MapReader(dataReader)
             };
         }
 

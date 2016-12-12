@@ -23,19 +23,25 @@ namespace LibraryWeb.Service
 
         public void Create(BookModel book)
         {
+            BookValidator.Validate(book);
             using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
                try
                 {
                     connection.Open();
                     // add book to books table.
-                    this._booksRepo.Insert(book, connection);
+                    int id = this._booksRepo.Insert(book, connection);
+                    book.Id = id;
                     // add book to author relation
                     this._booksAuthorsRepo.Insert(book, connection);
                 }
                 catch (SqlException ex)
                 {
                     throw new ArgumentException("Connection error");
+                }
+                catch (ArgumentException ex)
+                {
+                    throw new ArgumentException("Name of the current book duplicates the name of the existing book.");
                 }
                 finally
                 {
@@ -147,7 +153,7 @@ namespace LibraryWeb.Service
                 }
             }
         }
-
+        
         private bool IsValidBookForDeletion(BookModel book)
         {
             return book.TotalQuantity == book.AvailableQuantity;

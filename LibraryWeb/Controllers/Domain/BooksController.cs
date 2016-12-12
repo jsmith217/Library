@@ -9,6 +9,7 @@ using LibraryWeb.Service;
 using LibraryWeb.Models.Books;
 using LibraryWeb.Models.Readers;
 using LibraryWeb.Models.History;
+using LibraryWeb.Models.Authors;
 
 namespace LibraryWeb.Controllers
 {
@@ -17,12 +18,14 @@ namespace LibraryWeb.Controllers
         private BookService _bookService;
         private HistoryService _historyService;
         private ReaderService _readerService;
+        private AuthorService _authorService;
 
         public BooksController()
         {
             this._bookService = new BookService();
             this._historyService = new HistoryService();
             this._readerService = new ReaderService();
+            this._authorService = new AuthorService();
         }
 
         //[Authorize(Roles = "User, Admin")]
@@ -90,8 +93,9 @@ namespace LibraryWeb.Controllers
             try
             {
                 string email = User.Identity.Name;
-                BookModel book = this._bookService.GetById(id);
-                ReaderModel reader = this._readerService.GetByDetails(email);
+                var history = this._historyService.GetById(id);
+                this._historyService.ReturnBook(history);
+                return RedirectToAction("Details", "Readers", new { id = history.Reader.Id });
             }
             catch (ArgumentException ex)
             {
@@ -127,11 +131,58 @@ namespace LibraryWeb.Controllers
         // GET: Book/Create
         public ActionResult Create()
         {
-            return View();
+            if (TempData["Errors"] != null)
+            {
+                ModelState.AddModelError("", TempData["Errors"].ToString());
+            }
+
+            var book = new BookViewModel
+            {
+                Book = new BookModel { Authors = this._authorService.GetAllAuthors() },
+                AuthorString = String.Empty
+            };
+
+            return View("Create", book);
+        }
+
+        [HttpPost]
+        public ActionResult Create(BookViewModel bookViewModel)
+        {
+            BookModel book = null;
+            try
+            {
+                book = new BookModel
+                {
+                    Id = bookViewModel.Book.Id,
+                    Title = bookViewModel.Book.Title,
+                    TotalQuantity = bookViewModel.Book.TotalQuantity,
+                    AvailableQuantity = bookViewModel.Book.TotalQuantity
+                };
+
+                var authors = new List<AuthorModel>();
+                if (!String.IsNullOrEmpty(bookViewModel.AuthorString))
+                {
+                    var authorNames = bookViewModel.AuthorString.Split(
+                  new string[] { ", " },
+                  StringSplitOptions.RemoveEmptyEntries);
+
+                    authors.AddRange(authorNames.Select(a => this._authorService.GetAuthorByName(a)));
+                    book.Authors = authors;
+                }
+
+                this._bookService.Create(book);
+                return RedirectToAction("Index");
+            }
+            catch (ArgumentException ex)
+            {
+                TempData["Errors"] = ex.Message;
+            }
+
+            return RedirectToAction("Create", book.Id);
         }
 
         // POST: Book/Create
-        [HttpPost]
+        /*[HttpPost]
         public ActionResult Create(FormCollection collection)
         {
             try
@@ -145,7 +196,7 @@ namespace LibraryWeb.Controllers
                 return View();
             }
         }
-
+        */
         // GET: Book/Edit/5
         public ActionResult Edit(int id)
         {

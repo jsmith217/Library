@@ -9,6 +9,13 @@ namespace LibraryWeb.Repository
 {
     public class RoleRepository : IRepository<RoleModel>
     {
+        private ReadCommandBuilder _commandBuilder;
+
+        public RoleRepository()
+        {
+            this._commandBuilder = new ReadCommandBuilder();
+        }
+
         public void Delete(RoleModel entity, SqlConnection connection)
         {
             throw new NotImplementedException();
@@ -35,15 +42,13 @@ namespace LibraryWeb.Repository
             throw new NotImplementedException();
         }
 
-        public List<RoleModel> Select(List<string> conditions)
+        public List<RoleModel> Select(params string[] conditions)
         {
             var roles = new List<RoleModel>();
             using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
-                string conditionText = conditions == null || conditions.Count == 0
-                    ? "" : String.Concat(" WHERE ", String.Join(" AND ", conditions));
-                string commandText = String.Format("SELECT * FROM RoleData{0};", conditionText);
-                using (SqlCommand command = new SqlCommand(commandText, connection))
+                string commandText = "SELECT * FROM RoleData";
+                using (SqlCommand command = this._commandBuilder.BuildNotSecureCommand(commandText, connection, null, conditions))
                 {
                     try
                     {

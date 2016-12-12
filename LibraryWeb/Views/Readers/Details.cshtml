@@ -50,7 +50,7 @@
                             <td>
                                 @{if (!item.DateReturned.HasValue)
                                     {
-                                        @Html.ActionLink("Return", "Return", new { id = item.Id })
+                                        @Html.ActionLink("Return", "Return", new { controller = "Books", id = item.Id })
                                     }
                                 }
                             </td>

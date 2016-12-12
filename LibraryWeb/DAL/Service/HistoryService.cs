@@ -12,7 +12,7 @@ using System.Xml;
 
 namespace LibraryWeb.Service
 {
-    public class HistoryService
+    public class HistoryService : ICommonQueries<HistoryModel>
     {
         private HistoryRepository _historyRepo;
         private ReaderService _readerService;
@@ -167,6 +167,11 @@ namespace LibraryWeb.Service
                     connection.Close();
                 }
             }
+        }
+
+        public HistoryModel GetById(int id)
+        {
+            return this._historyRepo.Select($"h.Id={id}").FirstOrDefault();
         }
     }
 }

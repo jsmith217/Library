@@ -35,13 +35,13 @@ namespace LibraryWeb.Repository
         public void Insert(BookModel entities, SqlConnection connection)
         {
             var commandText = new StringBuilder("INSERT INTO BooksAuthors (BookId, AuthorId) VALUES ");
-            commandText.Append(String.Join(",", entities.Authors.Select((a, index) => $"(@bookId, @authorId{index})")));
+            commandText.Append(String.Join(",", entities.Authors.Select((a, index) => $"(@bookId{index}, @authorId{index})")));
             commandText.Append(";");
             using (SqlCommand command = new SqlCommand(commandText.ToString(), connection))
             {
                 for (int i = 0; i < entities.Authors.Count; i++)
                 {
-                    command.Parameters.AddWithValue("@bookId", entities.Id);
+                    command.Parameters.AddWithValue($"@bookId{i}", entities.Id);
                     command.Parameters.AddWithValue($"@authorId{i}", entities.Authors[i].Id);
                 }
                 try
@@ -78,15 +78,5 @@ namespace LibraryWeb.Repository
             }
         }
         #endregion
-
-       /* protected override BooksAuthorsRelationTable GetEntity(SqlDataReader reader, SqlConnection connection)
-        {
-            return new BooksAuthorsRelationTable
-            {
-                Id = Int32.Parse(reader["Id"].ToString()),
-                BookId = Int32.Parse(reader["BookId"].ToString()),
-                AuthorId = Int32.Parse(reader["AuthorId"].ToString())
-            };
-        }*/
     }
 }

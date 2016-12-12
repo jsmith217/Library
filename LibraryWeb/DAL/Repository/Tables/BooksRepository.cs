@@ -12,7 +12,7 @@ namespace LibraryWeb.Repository
     /// <summary>
     /// Represents book repository for elementary CRUD.
     /// </summary>
-    public class BooskRepository : IRepository<BookModel>
+    public class BooskRepository //: IRepository<BookModel>
     {
         private readonly string _selectionString;
         private readonly BookMapper _mapper;
@@ -45,10 +45,10 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId";
             }
         }
 
-        public void Insert(BookModel entity, SqlConnection connection)
+        public int Insert(BookModel entity, SqlConnection connection)
         {
             BookValidator.Validate(entity);
-            string commandText = $"INSERT INTO Books (Title, Total, Available) VALUES (@title, @total, @available);";
+            string commandText = $"INSERT INTO Books (Title, Total, Available) VALUES (@title, @total, @available) SELECT SCOPE_IDENTITY();";
             using (SqlCommand command = new SqlCommand(commandText, connection))
             {
                 command.Parameters.AddWithValue("@title", entity.Title);
@@ -57,7 +57,8 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId";
 
                 try
                 {
-                    int recordsAffected = command.ExecuteNonQuery();
+                    var r = command.ExecuteScalar();
+                    return Convert.ToInt32(r);
                 }
                 catch (SqlException ex)
                 {

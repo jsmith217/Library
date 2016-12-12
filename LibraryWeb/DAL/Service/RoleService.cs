@@ -18,17 +18,17 @@ namespace LibraryWeb.Service
 
         public RoleModel GetAdminRole()
         {
-            return this._roleRepo.Select(new List<string> { "Id=1" }).First();
+            return this._roleRepo.Select("Id=1").First();
         }
 
         public RoleModel GetRegularRole()
         {
-            return this._roleRepo.Select(new List<string> { "Id=2" }).First();
+            return this._roleRepo.Select("Id=2").First();
         }
 
         public RoleModel GetById(int id)
         {
-            return this._roleRepo.Select(new List<string> { $"Id={id}" }).First();
+            return this._roleRepo.Select($"Id={id}").First();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿@model LibraryWeb.Models.Books.BookModel
+﻿@model LibraryWeb.Models.Books.BookViewModel
 
 @{
     ViewBag.Title = "Create";
@@ -7,36 +7,52 @@
 <h2>Create</h2>
 
 
-@using (Html.BeginForm()) 
+@using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         <h4>BookModel</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">
-            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.Book.Title, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                @Html.EditorFor(model => model.Book.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Book.Title, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.TotalQuantity, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.Book.TotalQuantity, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.TotalQuantity, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.TotalQuantity, "", new { @class = "text-danger" })
+                @Html.EditorFor(model => model.Book.TotalQuantity, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Book.TotalQuantity, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.AvailableQuantity, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.AuthorString, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.AvailableQuantity, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.AvailableQuantity, "", new { @class = "text-danger" })
+                @Html.TextBoxFor(model => model.AuthorString, "",
+               htmlAttributes : new { @class = "form-control", id="authorNameList", @readonly= "readonly" })
+               @*@Html.ValidationMessageFor(model => model.AvailableQuantity, "", new { @class = "text-danger" })*@ 
             </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Book.Authors, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @{
+                    var listItems = new List<SelectListItem>(Model.Book.Authors.Select(
+                        x => new SelectListItem { Text = x.FullName, Value = x.FullName}));
+
+                    @Html.DropDownListFor(model => model.Book.Authors,
+                                   listItems,
+                                   new { onchange = "getData()", id = "list" });
+               }
+            </div>
+            <div id="placement" class="col-sm-5" style="display: block"></div>
         </div>
 
         <div class="form-group">
@@ -50,6 +66,53 @@
 <div>
     @Html.ActionLink("Back to List", "Index")
 </div>
+<script>
+    var maxId = 0;
+
+    function getData() {
+        var div = document.createElement('div');
+        div.className = "control-group";
+        div.id = String(++maxId);
+        console.log(div.id);
+
+        var mainDiv = document.getElementById('placement');
+        var children = mainDiv.children;
+       
+        var label = document.createElement('label');
+        label.textContent = document.getElementById('list').value;
+        label.className = "col-sm-6"
+        label.id = 'label' + maxId;
+
+        var deletButton = document.createElement('button');
+        deletButton.className = " btn btn-default";
+        deletButton.id = 'delete' + maxId;
+        deletButton.textContent = "Delete";
+        console.log(deletButton.Id);
+
+        div.appendChild(label);
+        div.appendChild(deletButton);
+
+        document.getElementById("authorNameList").value += label.textContent.trim() + ", ";
+        document.getElementById('placement').appendChild(div);
+
+        deletButton.onclick = function () {
+            var id = parseInt(String(deletButton.id).replace(/[^\d\.]*/g, ''), 10);
+            var divToDelete = document.getElementById(id);
+            console.log(divToDelete);
+
+            var area = document.getElementById("authorNameList");
+            var areaText = area.value;
+            var correspondingLabel = document.getElementById('label' + id);
+            areaText = areaText.replace(correspondingLabel.textContent.trim(), '');
+            area.value = areaText;
+
+            maxId--;
+            document.getElementById('placement').removeChild(divToDelete);
+        };
+    }
+    
+
+</script>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

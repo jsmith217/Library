@@ -204,6 +204,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\Domain\AuthorsController.cs" />
     <Compile Include="Controllers\Domain\BooksController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
@@ -222,6 +223,7 @@
     <Compile Include="DAL\Repository\Tables\ReadersRepository.cs" />
     <Compile Include="DAL\Repository\Tables\RoleRepository.cs" />
     <Compile Include="DAL\ReadCommandBuilder.cs" />
+    <Compile Include="DAL\Service\AuthorService.cs" />
     <Compile Include="DAL\Service\BookService.cs" />
     <Compile Include="DAL\Service\HistoryService.cs" />
     <Compile Include="DAL\Service\ICommonQueries.cs" />
@@ -235,6 +237,7 @@
     <Compile Include="Models\Books\BookModel.cs" />
     <Compile Include="Models\Books\BookStatus.cs" />
     <Compile Include="Models\Books\BookValidator.cs" />
+    <Compile Include="Models\Books\BookViewModel.cs" />
     <Compile Include="Models\History\HistoryValidation.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
@@ -311,6 +314,9 @@
     <Content Include="Views\Books\Details.cshtml" />
     <Content Include="Views\Books\History.cshtml" />
     <Content Include="Views\Books\Edit.cshtml" />
+    <Content Include="Views\Authors\Index.cshtml" />
+    <Content Include="Views\Authors\Edit.cshtml" />
+    <Content Include="Views\Authors\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

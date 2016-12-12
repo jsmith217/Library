@@ -25,12 +25,14 @@ namespace LibraryWeb.Controllers
             return View("Index", this._readerService.GetAllReaders());
         }
 
+        [Authorize(Roles = "User, Admin")]
         // GET: Readers/Details/5
         public ActionResult Details(int id)
         {
             return View(this._historyService.GetReaderHistory(id));
         }
         
+        [Authorize (Roles = "Admin")]
         // GET: Readers/Create
         public ActionResult Create()
         {

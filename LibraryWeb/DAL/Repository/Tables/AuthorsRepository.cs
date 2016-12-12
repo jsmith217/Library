@@ -9,6 +9,13 @@ namespace LibraryWeb.Repository
 {
     public class AuthorsRepository : IRepository<AuthorModel>
     {
+        private ReadCommandBuilder _commandBuilder;
+
+        public AuthorsRepository()
+        {
+            this._commandBuilder = new ReadCommandBuilder();
+        }
+
         // Deprecate deletion.
         public void Delete(AuthorModel entity, SqlConnection connection)
         {
@@ -17,7 +24,7 @@ namespace LibraryWeb.Repository
 
         public void Insert(AuthorModel entity, SqlConnection connection)
         {
-            string commandText = $"INSERT INTO Authors (FullName) VALUES @fullName";
+            string commandText = $"INSERT INTO Authors (FullName) VALUES (@fullName)";
             using (SqlCommand command = new SqlCommand(commandText, connection))
             {
                 command.Parameters.AddWithValue("@fullName", entity.FullName);
@@ -49,14 +56,39 @@ namespace LibraryWeb.Repository
                 }
             }
         }
-        
-        /*protected override AuthorModel GetEntity(SqlDataReader reader, SqlConnection connection)
+
+        public List<AuthorModel> Select(params string[] conditions)
         {
-            return new AuthorModel
+            List<AuthorModel> authors = new List<AuthorModel>();
+            using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
-                Id = Int32.Parse(reader["Id"].ToString()),
-                FullName = reader["FullName"].ToString()
-            };
-        }*/
+                string commandText = "SELECT * FROM Authors";
+                using (SqlCommand command = this._commandBuilder.BuildNotSecureCommand(commandText, connection, "", conditions))
+                {
+                    try
+                    {
+                        connection.Open();
+                        var reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            authors.Add(new AuthorModel
+                            {
+                                Id = Int32.Parse(reader["Id"].ToString()),
+                                FullName = reader["FullName"].ToString()
+                            });
+                        } 
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new ArgumentException("Internal server error. Connection not established.");
+                    }
+                    finally
+                    {
+                        connection.Close();
+                    }
+                }
+            }
+            return authors;
+        }
     }
 }
