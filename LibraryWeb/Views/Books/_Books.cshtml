@@ -32,7 +32,7 @@
                 </td>
                 <td>
                     @{ string authorNames = item.Authors == null || item.Authors.Count == 0
-                             ? "-" : String.Join(", ", item.Authors.Select(a => a.FullName).ToArray());}
+       ? "-" : String.Join(", ", item.Authors.Select(a => a.FullName).ToArray());}
                     @Html.DisplayFor(modelItem => authorNames)
                 </td>
                 <td>
@@ -40,7 +40,11 @@
                     @Html.ActionLink("Details", "Details", new { id = item.Id }) |
                     @Html.ActionLink("Delete", "Delete", new { id = item.Id }) |
                     @Html.ActionLink("Show History", "History", new { id = item.Id }) |
-                    @Html.ActionLink("Take", "Take", new { id = item.Id }) |
+                    @{if (item.AvailableQuantity > 0)
+                        {
+                            @Html.ActionLink("Take", "Take", new { id = item.Id })
+                        }
+                    }
                 </td>
             </tr>
          }

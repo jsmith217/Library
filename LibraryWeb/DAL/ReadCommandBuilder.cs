@@ -8,9 +8,9 @@ namespace LibraryWeb
 {
     public class ReadCommandBuilder
     {
-        public SqlCommand BuildSecureCommand(string commandText, SqlConnection connection, List<Pair> pairs, string ordering)
+        public SqlCommand BuildSecureCommand(string commandText, SqlConnection connection, string ordering, params Pair[] pairs)
         {
-            if (pairs == null || pairs.Count == 0)
+            if (pairs == null || pairs.Count() == 0)
             {
                 return new SqlCommand(String.Format(commandText, ""), connection);
             }
@@ -27,10 +27,14 @@ namespace LibraryWeb
             return rawCommand;
         }
 
-        public SqlCommand BuildNotSecureCommand(string commandText, SqlConnection connection, List<string> conditions, string ordering)
+        public SqlCommand BuildNotSecureCommand(string commandText, SqlConnection connection, string ordering, params string[] conditions)
         {
-            string conditionText = conditions == null || conditions.Count == 0
-                ? "" : String.Concat(" WHERE ", String.Join(" AND ", conditions));
+            var fileterConditions = conditions.Count() == 0
+                ? null : conditions.Where(c => !String.IsNullOrEmpty(c));
+
+            string conditionText = fileterConditions == null || fileterConditions.Count() == 0
+                ? "" : String.Concat(" WHERE ", String.Join(" AND ", fileterConditions));
+
             string updatedCommandText = String.Format("{0}{1}{2}", commandText, conditionText, ordering);
             return new SqlCommand(updatedCommandText, connection);
         }

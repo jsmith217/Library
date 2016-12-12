@@ -7,6 +7,8 @@ using PagedList;
 using LibraryWeb.Repository;
 using LibraryWeb.Service;
 using LibraryWeb.Models.Books;
+using LibraryWeb.Models.Readers;
+using LibraryWeb.Models.History;
 
 namespace LibraryWeb.Controllers
 {
@@ -14,13 +16,16 @@ namespace LibraryWeb.Controllers
     {
         private BookService _bookService;
         private HistoryService _historyService;
+        private ReaderService _readerService;
 
         public BooksController()
         {
             this._bookService = new BookService();
             this._historyService = new HistoryService();
+            this._readerService = new ReaderService();
         }
 
+        //[Authorize(Roles = "User, Admin")]
         // GET: Book
         public ActionResult Index(string orderColumn, bool? viewAvailableOnly, int? page)
         {
@@ -43,11 +48,14 @@ namespace LibraryWeb.Controllers
             int pageSize = 5;
             return View("Index", books.ToPagedList(page ?? 1, pageSize));
         }
-
-        [Authorize]
+        
         public EmptyResult Take(int id)
         {
             //return View();
+            string email = User.Identity.Name;
+            BookModel book = this._bookService.GetById(id);
+            ReaderModel reader = this._readerService.GetByDetails(email);
+            this._historyService.TakeBook(new HistoryModel { Book = book, Reader = reader, DateTaken = DateTime.Now });
             return new EmptyResult();
         }
 

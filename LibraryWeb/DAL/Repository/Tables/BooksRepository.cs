@@ -92,7 +92,7 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId";
         }
         #endregion
         
-        public List<BookModel> Select(string orderColumn, List<string> conditions)
+        public List<BookModel> Select(string orderColumn, params string[] conditions)
         {
             List<BookModel> books = new List<BookModel>();
             string orderText = String.IsNullOrEmpty(orderColumn) ? "" : $"ORDER BY {orderColumn}";
@@ -100,7 +100,7 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId";
             using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
                 using (SqlCommand command = this._commandBuilder.BuildNotSecureCommand(
-                    this._selectionString, connection, conditions, orderText))
+                    this._selectionString, connection, orderText, conditions))
                 {
                     try
                     {
@@ -151,5 +151,20 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId";
             return books;
         }
         
+        public bool CheckBookIsAvailable(BookModel book, SqlConnection connection)
+        {
+            string commandText = "SELECT COUNT(*) as counter FROM Books WHERE Available > 0;";
+            using (SqlCommand command = new SqlCommand(commandText, connection))
+            {
+                try
+                {
+                    return (int)command.ExecuteScalar() > 0;
+                }
+                catch (SqlException ex)
+                {
+                    throw new ArgumentException($"Count query error: {ex.Message}");
+                }
+            }
+        }
     }
 }

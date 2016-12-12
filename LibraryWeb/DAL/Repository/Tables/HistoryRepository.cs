@@ -42,7 +42,26 @@ LEFT JOIN Books b ON b.id = h.BookId";
 
         public void Insert(HistoryModel entity, SqlConnection connection)
         {
-            throw new NotImplementedException();
+            HistoryValidation.Validate(entity);
+            // Insert all history entries in one connection opening.
+            var commandText = "INSERT INTO History (BookId, ReaderId, DateTaken, DateReturned) VALUES (@bookId,@readerId,@dateTaken,@dateReturned);";
+            
+            using (SqlCommand command = new SqlCommand(commandText.ToString(), connection))
+            {
+                command.Parameters.AddWithValue("@bookId", entity.Book.Id);
+                command.Parameters.AddWithValue("@readerId", entity.Id);
+                command.Parameters.AddWithValue("@dateTaken", entity.DateTaken);
+                command.Parameters.AddWithValue("@dateReturned", (object)entity.DateReturned ?? DBNull.Value);
+
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                catch (SqlException ex)
+                {
+                    throw new ArgumentException($"Wrong history insertion query: {ex.Message}");
+                }
+            }
         }
 
         public void Insert(ReaderModel entity, SqlConnection connection)
@@ -97,13 +116,13 @@ LEFT JOIN Books b ON b.id = h.BookId";
             }
         }
 
-        public List<HistoryModel> Select(List<string> conditions)
+        public List<HistoryModel> Select(params string[] conditions)
         {
             var histories = new List<HistoryModel>();
             using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
                 using (SqlCommand command = this._commandBuilder.BuildNotSecureCommand(
-                    this._selectionString, connection, conditions, ""))
+                    this._selectionString, connection, "", conditions))
                 {
                     try
                     {

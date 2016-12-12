@@ -12,20 +12,23 @@ namespace LibraryWeb.Models.Readers
     public class ReaderModel
     {
         public int Id { get; set; }
-
+        
+        [Required]
         [DisplayName("Full Name")]
-        [Required(ErrorMessage = "Reader name is required.")]
         [StringLength(100)]
         public string FullName { get; set; }
-
+        
+        [Required]
         [DisplayName("Email")]
-        [Required(ErrorMessage = "Reader email is required.")]
-        [StringLength(100), MinLength(3)]
+        [EmailAddress(ErrorMessage = "Email address is not valid.")]
         public string Email { get; set; }
      
-        [DisplayName("Password")]
-        [StringLength(30)]
+        [MaxLength(30)]
         public string Password { get; set; }
+
+        [MaxLength(30)]
+        [Compare("Password", ErrorMessage = "Confirm password doesn't match password.")]
+        public string ConfirmPassword { get; set; }
 
         public RoleModel Role { get; set; }
 

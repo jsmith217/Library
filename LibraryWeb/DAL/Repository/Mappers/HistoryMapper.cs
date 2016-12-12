@@ -19,11 +19,12 @@ namespace LibraryWeb.Repository.Mappers
                 return new HistoryModel { Reader = this.MapReader(dataReader), Book = this.MapBook(dataReader) };
             }
 
+            var returnDate = dataReader["DateReturned"].ToString();
             return new HistoryModel
             {
                 Id = Int32.Parse(historyId),
                 DateTaken = DateTime.Parse(dataReader["DateTaken"].ToString()),
-                DateReturned = DateTime.Parse(dataReader["DateReturned"].ToString()),
+                DateReturned = String.IsNullOrEmpty(returnDate) ? null : new Nullable<DateTime>(DateTime.Parse(returnDate)),
                 Book = this.MapBook(dataReader),
                 Reader = this.MapReader(dataReader)
             };
@@ -40,7 +41,7 @@ namespace LibraryWeb.Repository.Mappers
             return new BookModel
             {
                 Id = Int32.Parse(bookId),
-                Title = reader["Title"].ToString(),
+                Title = reader["Title"].ToString().Trim(),
                 AvailableQuantity = Int32.Parse(reader["Available"].ToString()),
                 TotalQuantity = Int32.Parse(reader["Total"].ToString())
             };

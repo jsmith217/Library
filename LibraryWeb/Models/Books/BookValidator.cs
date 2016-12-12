@@ -21,10 +21,10 @@ namespace LibraryWeb.Models.Books
             {
                 throw new ArgumentException("Quantity of the available books can't be bigger than total quantity.");
             }
-            else if (book.Authors == null || book.Authors.Count == 0)
+            /*else if (book.Authors == null || book.Authors.Count == 0)
             {
                 throw new ArgumentException("Book without the author cannot be added to the library.");
-            }
+            }*/
         }
     }
 }

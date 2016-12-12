@@ -101,17 +101,22 @@ namespace LibraryWeb.Service
 
         public List<BookModel> GetAllBooks(string orderColumn)
         {
-            return this._booksRepo.Select(orderColumn, new List<string> { "b.Total > 0" });
+            return this._booksRepo.Select(orderColumn, "b.Total > 0");
         }
 
         public List<BookModel> GetAllAvailableBooks()
         {
-            return this._booksRepo.Select(null, new List<string> { "b.Available > 0", " b.Total > 0" });
+            return this._booksRepo.Select(null, "b.Available > 0", " b.Total > 0");
+        }
+
+        public bool IsAvailable(BookModel model, SqlConnection connection)
+        {
+            return this._booksRepo.CheckBookIsAvailable(model, connection);
         }
 
         public BookModel GetById(int id)
         {
-            return this._booksRepo.Select(null, new List<string> { $"b.Id={id}" }).First();
+            return this._booksRepo.Select(null, $"b.Id={id}").First();
         }
 
         public bool IsValidBookForDeletion(int id)

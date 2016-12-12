@@ -16,9 +16,9 @@ namespace LibraryWeb.Repository.Mappers
             return new ReaderModel
             {
                 Id = Int32.Parse(dataReader["Id"].ToString()),
-                FullName = dataReader["FullName"].ToString(),
-                Email = dataReader["Email"].ToString(),
-                Password = dataReader["Password"].ToString(),
+                FullName = dataReader["FullName"].ToString().TrimEnd(),
+                Email = dataReader["Email"].ToString().Trim(),
+                Password = dataReader["Password"].ToString().Trim(),
                 Role = this.MapRole(dataReader),
                 History = new List<HistoryModel>()
             };
@@ -29,7 +29,7 @@ namespace LibraryWeb.Repository.Mappers
             return new RoleModel
             {
                 Id = int.Parse(dataReader["RoleId"].ToString()),
-                RoleName = dataReader["Name"].ToString()
+                RoleName = dataReader["Name"].ToString().Trim()
             };
         }
     }

@@ -61,6 +61,10 @@ namespace LibraryWeb.Repository
                     {
                         throw new ArgumentException($"Wrong select query: {ex.Message}");
                     }
+                    finally
+                    {
+                        connection.Close();
+                    }
                 }
             }
             return roles;

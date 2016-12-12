@@ -9,22 +9,21 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using LibraryWeb.Models;
-using LibraryWeb.Models.Readers;
 using LibraryWeb.Service;
+using LibraryWeb.Models.Readers;
 
 namespace LibraryWeb.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
-        private ReaderService _readerService { get; }
-
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
+        private ReaderService _readerService { get; set; }
+
         public AccountController()
         {
-            this._readerService = new ReaderService();
         }
 
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
@@ -77,13 +76,7 @@ namespace LibraryWeb.Controllers
             {
                 return View(model);
             }
-
-            ReaderModel loginReader = new ReaderModel { Email = model.Email, Password = model.Password };
-            //var dbReader = this._readerService.GetById()
-            return null;
-            /*
-            // This doesn't count login failures towards account lockout
-            // To enable password failures to trigger account lockout, change to shouldLockout: true
+            
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
             {
@@ -97,7 +90,7 @@ namespace LibraryWeb.Controllers
                 default:
                     ModelState.AddModelError("", "Invalid login attempt.");
                     return View(model);
-            }*/
+            }
         }
 
         //
@@ -156,7 +149,7 @@ namespace LibraryWeb.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterViewModel model)
+        public async Task<ActionResult> Register(ReaderModel model)
         {
             if (ModelState.IsValid)
             {
@@ -164,6 +157,12 @@ namespace LibraryWeb.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    this._readerService.CreateRegularReader(new ReaderModel
+                    {
+                        Email = model.Email,
+                        FullName = model.FullName,
+                        Password = model.Password
+                    });
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
                     
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
