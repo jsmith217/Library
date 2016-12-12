@@ -6,6 +6,7 @@ using System.Web;
 using LibraryWeb.Models.History;
 using LibraryWeb.Models.Books;
 using LibraryWeb.Models.Readers;
+using LibraryWeb.Models.Authors;
 
 namespace LibraryWeb.Repository.Mappers
 {
@@ -24,13 +25,13 @@ namespace LibraryWeb.Repository.Mappers
             {
                 Id = Int32.Parse(historyId),
                 DateTaken = DateTime.Parse(dataReader["DateTaken"].ToString()),
-                DateReturned = String.IsNullOrEmpty(returnDate) ? null : new Nullable<DateTime>(DateTime.Parse(returnDate)),
-                Book = this.MapBook(dataReader),
-                Reader = this.MapReader(dataReader)
+                DateReturned = String.IsNullOrEmpty(returnDate) ? null : new Nullable<DateTime>(DateTime.Parse(returnDate))
+                //Book = this.MapBook(dataReader),
+                //Reader = this.MapReader(dataReader)
             };
         }
 
-        private BookModel MapBook(SqlDataReader reader)
+        public BookModel MapBook(SqlDataReader reader)
         {
             var bookId = reader["BookId"].ToString();
             if (String.IsNullOrEmpty(bookId))
@@ -43,11 +44,12 @@ namespace LibraryWeb.Repository.Mappers
                 Id = Int32.Parse(bookId),
                 Title = reader["Title"].ToString().Trim(),
                 AvailableQuantity = Int32.Parse(reader["Available"].ToString()),
-                TotalQuantity = Int32.Parse(reader["Total"].ToString())
+                TotalQuantity = Int32.Parse(reader["Total"].ToString()),
+                Authors = new List<AuthorModel>()
             };
         }
 
-        private ReaderModel MapReader(SqlDataReader dataReader)
+        public ReaderModel MapReader(SqlDataReader dataReader)
         {
             var readerId = dataReader["ReaderId"].ToString();
             if (String.IsNullOrEmpty(readerId))
@@ -62,6 +64,21 @@ namespace LibraryWeb.Repository.Mappers
                 Email = dataReader["Email"].ToString(),
                 Password = dataReader["Password"].ToString(),
                 History = new List<HistoryModel>()
+            };
+        }
+
+        public AuthorModel MapAuthor(SqlDataReader reader)
+        {
+            var authorId = reader["AuthorId"].ToString();
+            if (String.IsNullOrEmpty(authorId))
+            {
+                return null;
+            }
+
+            return new AuthorModel
+            {
+                Id = Int32.Parse(authorId),
+                FullName = reader["AuthorName"].ToString()
             };
         }
     }

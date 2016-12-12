@@ -64,9 +64,11 @@ namespace LibraryWeb.Service
                 Id = history.First().Id,
                 Title = history.First().Book.Title,
                 TotalQuantity = history.First().Book.TotalQuantity,
-                AvailableQuantity = history.First().Book.AvailableQuantity
+                AvailableQuantity = history.First().Book.AvailableQuantity,
+                Authors = history.First().Book.Authors
             };
         }
+
         public void SendMail(HistoryModel history)
         {
            try

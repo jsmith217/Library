@@ -8,30 +8,31 @@ using LibraryWeb.Models.History;
 using LibraryWeb.Models.Readers;
 using LibraryWeb.Models.Books;
 using LibraryWeb.Repository.Mappers;
+using LibraryWeb.Models.Authors;
 
 namespace LibraryWeb.Repository
 {
     public class HistoryRepository : IRepository<HistoryModel>
     {
         private string _selectionString;
-
-        private ReaderMapper _readerMapper;
+        
         private HistoryMapper _historyMapper;
 
         private ReadCommandBuilder _commandBuilder;
 
         public HistoryRepository()
         {
-            this._readerMapper = new ReaderMapper();
             this._historyMapper = new HistoryMapper();
             this._commandBuilder = new ReadCommandBuilder();
             this._selectionString = @"
 SELECT r.Id as ReaderId,r.FullName,r.Email,r.Password,
 b.Id as BookId,b.Title,b.Available,b.Total,
-h.Id as HistoryId,h.DateTaken,h.DateReturned
+h.Id as HistoryId,h.DateTaken,h.DateReturned, a.FullName as AuthorName, a.Id as AuthorId
 FROM Readers r 
 LEFT JOIN History h ON r.Id=h.ReaderId
-LEFT JOIN Books b ON b.id = h.BookId";
+LEFT JOIN Books b ON b.id = h.BookId
+left join BooksAuthors ba on b.Id = ba.BookId
+Left join Authors a on a.id = ba.AuthorId";
         }
 
         // Deprecate deletion.
@@ -130,7 +131,33 @@ LEFT JOIN Books b ON b.id = h.BookId";
                         var dataReader = command.ExecuteReader();
                         while (dataReader.Read())
                         {
-                            histories.Add(this._historyMapper.Map(dataReader));
+                            var history = this._historyMapper.Map(dataReader);
+                            HistoryModel historyInList = null;
+                            if ((historyInList = histories.FirstOrDefault(h => h.Id == history.Id)) == null)
+                            {
+                                // Found new history. Update everything.
+                                var book = this._historyMapper.MapBook(dataReader);
+                                if (book != null)
+                                {
+                                    var author = this._historyMapper.MapAuthor(dataReader);
+                                    if (author != null)
+                                    {
+                                        book.Authors.Add(author);
+                                    }
+                                    history.Book = book;
+                                }
+                                var reader = this._historyMapper.MapReader(dataReader);
+                                history.Reader = reader;
+                                histories.Add(history);
+                            }
+                            else
+                            {
+                                // This history is already present in list.
+                                // It means we've found another author of the present book.
+                                var author = this._historyMapper.MapAuthor(dataReader);
+                                historyInList.Book.Authors.Add(author);
+                            }
+                            //histories.Add(this._historyMapper.Map(dataReader));
                         }
                         dataReader.Close();
                     }

@@ -31,6 +31,16 @@
         <dd>
             @Html.DisplayFor(model => model.AvailableQuantity)
         </dd>
+        <dt>
+            Authors
+        </dt>
+        <dd>
+            @{
+                string authorNames = Model.Authors == null
+                    ? "-" : String.Join(", ", Model.Authors.Select(a => a.FullName).ToArray());
+            }
+            @Html.DisplayFor(model => authorNames)
+        </dd>
 
     </dl>
 </div>
