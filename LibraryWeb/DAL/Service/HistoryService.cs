@@ -69,18 +69,22 @@ namespace LibraryWeb.Service
         }
         public void SendMail(HistoryModel history)
         {
-            // var address = MailNotificationSettings.Settings.Adress;
-            //var password = MailNotificationSettings.Settings.Password;
-
-            using (SmtpClient client = new SmtpClient())
+           try
             {
-                using (MailMessage message = new MailMessage())
+                using (SmtpClient client = new SmtpClient())
                 {
-                    message.To.Add(new MailAddress(history.Reader.Email));
-                    message.Body = $"You have taken a book '{ history.Book.Title }' from the library.";
+                    using (MailMessage message = new MailMessage())
+                    {
+                        message.To.Add(new MailAddress(history.Reader.Email));
+                        message.Body = $"You have taken a book '{ history.Book.Title }' from the library.";
 
-                    client.Send(message);
+                        client.Send(message);
+                    }
                 }
+            }
+            catch (SmtpException ex)
+            {
+                throw new ArgumentException($"Notification was not sent due to internal errors.");
             }
         }
 
@@ -102,9 +106,54 @@ namespace LibraryWeb.Service
                     {
                         book.AvailableQuantity--;
                         this._bookService.Update(book);
+                        history.DateTaken = DateTime.Now;
                         this._historyRepo.Insert(history, connection);
                         // Send message;
                         this.SendMail(history);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Internal error. This books is not available");
+                    }
+                }
+                catch (SqlException ex)
+                {
+                    throw new ArgumentException($"Connection error: {ex.Message}");
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+        }
+
+        public void ReturnBook(HistoryModel history)
+        {
+            BookModel book = history.Book;
+            ReaderModel reader = history.Reader;
+            if (book == null || reader == null)
+            {
+                throw new ArgumentException("Reader can't return the book.");
+            }
+
+            using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    if (book.AvailableQuantity < book.TotalQuantity)
+                    {
+                        book.AvailableQuantity++;
+                        this._bookService.Update(book);
+
+                        history.DateReturned = DateTime.Now;
+                        this._historyRepo.Update(history, connection);
+                        // Send message;
+                        this.SendMail(history);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Internal error. Total number of books can't be bigger than available.");
                     }
                 }
                 catch (SqlException ex)

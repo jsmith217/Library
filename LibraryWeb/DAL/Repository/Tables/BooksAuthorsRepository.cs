@@ -17,7 +17,18 @@ namespace LibraryWeb.Repository
         #region Write
         public void Delete(BookModel entity, SqlConnection connection)
         {
-            throw new NotImplementedException();
+            var commandText = $"DELETE FROM BooksAuthors WHERE BookId={entity.Id};";
+            using (SqlCommand command = new SqlCommand(commandText, connection))
+            {
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                catch (SqlException ex)
+                {
+                    throw new ArgumentException($"Wrond delete exception: {ex.Message}");
+                }
+            }
         }
         
 

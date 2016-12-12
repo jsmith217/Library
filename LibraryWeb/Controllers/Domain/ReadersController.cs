@@ -30,7 +30,7 @@ namespace LibraryWeb.Controllers
         {
             return View(this._historyService.GetReaderHistory(id));
         }
-
+        
         // GET: Readers/Create
         public ActionResult Create()
         {

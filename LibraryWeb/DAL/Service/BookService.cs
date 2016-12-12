@@ -50,22 +50,21 @@ namespace LibraryWeb.Service
         /// yet its quantity is set to 0.
         /// </summary>
         /// <param name="book">Book entity</param>
-        public void Delete(BookModel book)
+        public void Delete(int id)
         {
-            BookModel bookToDelete = new BookModel
+            BookModel book = this.GetById(id);
+            if (!this.IsValidBookForDeletion(book))
             {
-                Id = book.Id,
-                Authors = book.Authors,
-                Title = book.Title,
-                TotalQuantity = 0,
-                AvailableQuantity = 0
-            };
+                throw new ArgumentException("Current book is being read by some reader and thus can't be deleted.");
+            }
+
             using (SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString))
             {
                 try
                 {
                     connection.Open();
-                    this._booksRepo.Update(bookToDelete, connection);
+                    this._booksAuthorsRepo.Delete(book, connection);
+                    this._booksRepo.Delete(book, connection);
                 }
                 catch (SqlException ex)
                 {
@@ -119,10 +118,38 @@ namespace LibraryWeb.Service
             return this._booksRepo.Select(null, $"b.Id={id}").First();
         }
 
-        public bool IsValidBookForDeletion(int id)
+        public void EditQuantity(BookModel editedBook)
         {
-            var book = this.GetById(id);
-            // Check if this book is not taken by any reader.
+            BookModel book = this.GetById(editedBook.Id);
+            int booksTaken = book.TotalQuantity - book.AvailableQuantity;
+            if (editedBook.TotalQuantity < booksTaken)
+            {
+                throw new ArgumentException("Total number of the book can't be set smaller than number of books taken by readers.");
+            }
+            else
+            {
+                SqlConnection connection = new SqlConnection(ConnectionEstablisher.ConnectionString);
+                try
+                {
+                    connection.Open();
+                    book.TotalQuantity = editedBook.TotalQuantity;
+                    book.AvailableQuantity = editedBook.TotalQuantity - booksTaken;
+                    this._booksRepo.Update(book, connection);
+                    // update authors
+                }
+                catch (SqlException ex)
+                {
+                    throw new ArgumentException("Connection error.");
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+        }
+
+        private bool IsValidBookForDeletion(BookModel book)
+        {
             return book.TotalQuantity == book.AvailableQuantity;
         }
     }

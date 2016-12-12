@@ -86,7 +86,7 @@ LEFT JOIN Authors a ON a.Id=ba.AuthorId";
                 }
                 catch (SqlException ex)
                 {
-                    throw new ArgumentException($"Wrong author update query: {ex.Message}");
+                    throw new ArgumentException($"Wrong book update query: {ex.Message}");
                 }
             }
         }

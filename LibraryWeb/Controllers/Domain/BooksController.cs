@@ -29,40 +29,93 @@ namespace LibraryWeb.Controllers
         // GET: Book
         public ActionResult Index(string orderColumn, bool? viewAvailableOnly, int? page)
         {
-            var books = new List<BookModel>();
-
-            ViewBag.CurrentSort = orderColumn;
-            ViewBag.TitleSortParm = String.IsNullOrEmpty(orderColumn) ? "Title desc" : "Title";
-            ViewBag.TotalSortParm = orderColumn == "Total" ? "Total desc" : "Total";
-            ViewBag.AvailableSortParm = orderColumn == "Available" ? "Available desc" : "Available";
-
-            if (viewAvailableOnly.HasValue && viewAvailableOnly.Value)
+           try
             {
-                books = this._bookService.GetAllAvailableBooks();
+                if (TempData["Errors"] != null)
+                {
+                    ModelState.AddModelError("", TempData["Errors"].ToString());
+                }
+
+                var books = new List<BookModel>();
+
+                ViewBag.CurrentSort = orderColumn;
+                ViewBag.TitleSortParm = String.IsNullOrEmpty(orderColumn) ? "Title desc" : "Title";
+                ViewBag.TotalSortParm = orderColumn == "Total" ? "Total desc" : "Total";
+                ViewBag.AvailableSortParm = orderColumn == "Available" ? "Available desc" : "Available";
+
+                if (viewAvailableOnly.HasValue && viewAvailableOnly.Value)
+                {
+                    books = this._bookService.GetAllAvailableBooks();
+                }
+                else
+                {
+                    books = this._bookService.GetAllBooks(orderColumn);
+                }
+
+                int pageSize = 5;
+                return View("Index", books.ToPagedList(page ?? 1, pageSize));
             }
-            else
+            catch (ArgumentException ex)
             {
-                books = this._bookService.GetAllBooks(orderColumn);
+                ModelState.AddModelError("", ex.Message);
             }
 
-            int pageSize = 5;
-            return View("Index", books.ToPagedList(page ?? 1, pageSize));
+            return View();
         }
         
-        public EmptyResult Take(int id)
+        [HttpGet]
+        public ActionResult Take(int id)
         {
             //return View();
-            string email = User.Identity.Name;
-            BookModel book = this._bookService.GetById(id);
-            ReaderModel reader = this._readerService.GetByDetails(email);
-            this._historyService.TakeBook(new HistoryModel { Book = book, Reader = reader, DateTaken = DateTime.Now });
-            return new EmptyResult();
+            try
+            {
+                string email = User.Identity.Name;
+                BookModel book = this._bookService.GetById(id);
+                ReaderModel reader = this._readerService.GetByDetails(email);
+                this._historyService.TakeBook(new HistoryModel { Book = book, Reader = reader, DateTaken = DateTime.Now });
+
+                ViewBag.EmailMessage = "Email notification has been sent.";
+            }
+            catch (ArgumentException ex)
+            {
+                //ModelState.AddModelError("", ex.Message);
+                TempData["Errors"] = ex.Message;
+            }
+            return RedirectToAction("Index");
         }
+
+        // Returns book by id
+        public ActionResult Return(int id)
+        {
+            try
+            {
+                string email = User.Identity.Name;
+                BookModel book = this._bookService.GetById(id);
+                ReaderModel reader = this._readerService.GetByDetails(email);
+            }
+            catch (ArgumentException ex)
+            {
+                //ModelState.AddModelError("", ex.Message);
+                TempData["Errors"] = ex.Message;
+            }
+            return View();
+        }
+
 
         // GET: Book/Details/5
         public ActionResult Details(int id)
         {
-            return View("History", this._historyService.GetBookHistory(id));
+            BookModel book = null;
+            try
+            {
+                book = this._historyService.GetBookHistory(id);
+            }
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError("Arg", ex.Message);
+            }
+
+            return View("History", book);
         }
         
         // GET: Book/History/5
@@ -96,11 +149,38 @@ namespace LibraryWeb.Controllers
         // GET: Book/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            if (TempData["Errors"] != null)
+            {
+                ModelState.AddModelError("", TempData["Errors"].ToString());
+            }
+
+            var book = this._bookService.GetById(id);
+            if (book == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View("Edit", book);
+        }
+
+        [HttpPost]
+        public ActionResult Edit(BookModel book)
+        {
+            try
+            {
+                this._bookService.EditQuantity(book);
+                return RedirectToAction("Index");
+            }
+            catch (ArgumentException ex)
+            {
+                TempData["Errors"] = ex.Message;
+            }
+
+            return RedirectToAction("Edit", book.Id);
         }
 
         // POST: Book/Edit/5
-        [HttpPost]
+        /*[HttpPost]
         public ActionResult Edit(int id, FormCollection collection)
         {
             try
@@ -114,11 +194,20 @@ namespace LibraryWeb.Controllers
                 return View();
             }
         }
-
+        */
         // GET: Book/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            try
+            {
+                this._bookService.Delete(id);
+            }
+            catch (ArgumentException ex)
+            {
+                TempData["Errors"] = ex.Message;
+            }
+
+            return RedirectToAction("Index");
         }
 
         // POST: Book/Delete/5
@@ -128,10 +217,10 @@ namespace LibraryWeb.Controllers
             try
             {
                 // TODO: Add delete logic here
-
+                
                 return RedirectToAction("Index");
             }
-            catch
+            catch 
             {
                 return View();
             }
